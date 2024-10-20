@@ -1,9 +1,8 @@
 baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
-publishDir = "docs"
 
-theme = "hugo-blog-awesome"
+theme = "folgado"
 
 [[params.socialIcons]]
 name = "github"
