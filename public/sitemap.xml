@@ -1,29 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <sitemap>
-    <loc>https://hba.sid.one/en-gb/sitemap.xml</loc>
-    
-  </sitemap>
-  
-  <sitemap>
-    <loc>https://hba.sid.one/de-de/sitemap.xml</loc>
-    
-  </sitemap>
-  
-  <sitemap>
-    <loc>https://hba.sid.one/pt-br/sitemap.xml</loc>
-    
-  </sitemap>
-  
-  <sitemap>
-    <loc>https://hba.sid.one/ru-ru/sitemap.xml</loc>
-    
-  </sitemap>
-  
-  <sitemap>
-    <loc>https://hba.sid.one/it/sitemap.xml</loc>
-    
-  </sitemap>
-  
-</sitemapindex>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://localhost:43389/about/</loc>
+    <lastmod>2024-10-19T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:43389/</loc>
+    <lastmod>2024-10-19T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:43389/posts/</loc>
+    <lastmod>2024-09-11T22:31:07+01:00</lastmod>
+  </url><url>
+    <loc>http://localhost:43389/posts/post_1/my-first-post/</loc>
+    <lastmod>2024-09-11T22:31:07+01:00</lastmod>
+  </url><url>
+    <loc>http://localhost:43389/categories/</loc>
+  </url><url>
+    <loc>http://localhost:43389/tags/</loc>
+  </url>
+</urlset>
