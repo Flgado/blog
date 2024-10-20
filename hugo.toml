@@ -1,6 +1,7 @@
 baseURL = 'https://example.org/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
+publishDir = "docs"
 
 theme = "folgado"
 
@@ -20,7 +21,7 @@ url = "https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri
 name = "linkedin"
 url = "https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/"
 
-staticDir = "static"
+
 
 [params]
   goToTop = true
