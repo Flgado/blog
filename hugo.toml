@@ -1,0 +1,37 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'My New Hugo Site'
+publishDir = "docs"
+
+theme = "hugo-blog-awesome"
+
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/Flgado"
+
+[[params.socialIcons]]
+name = "twitter"
+url = "https://x.com/JoaoFolgado9/"
+
+[[params.socialIcons]]
+name = "instagram"
+url = "https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri"
+
+[[params.socialIcons]]
+name = "linkedin"
+url = "https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/"
+
+staticDir = "static"
+
+[params]
+  goToTop = true
+
+[[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "Bio"
+  url = "/about/"
+  weight = 2
