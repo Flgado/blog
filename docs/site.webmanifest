@@ -1,7 +1,7 @@
 {
     "name": "My New Hugo Site",
     "short_name": "My New Hugo Site",
-    "start_url": "http://localhost:36051/",
+    "start_url": "http://localhost:39409/",
     "theme_color": "#434648",
     "background_color": "#ffffff",
     "display": "standalone",
