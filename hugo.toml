@@ -21,7 +21,7 @@ url = "https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri
 name = "linkedin"
 url = "https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/"
 
-
+#staticDir = "static"
 
 [params]
   goToTop = true

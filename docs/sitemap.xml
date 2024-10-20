@@ -2,20 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://flgado.github.io/blog/about/</loc>
+    <loc>http://localhost:46613/blog/about/</loc>
     <lastmod>2024-10-19T15:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://flgado.github.io/blog/</loc>
+    <loc>http://localhost:46613/blog/</loc>
     <lastmod>2024-10-19T15:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://flgado.github.io/blog/posts/</loc>
+    <loc>http://localhost:46613/blog/posts/</loc>
     <lastmod>2024-09-11T22:31:07+01:00</lastmod>
   </url><url>
-    <loc>https://flgado.github.io/blog/posts/post_1/my-first-post/</loc>
+    <loc>http://localhost:46613/blog/posts/post_1/my-first-post/</loc>
     <lastmod>2024-09-11T22:31:07+01:00</lastmod>
   </url><url>
-    <loc>https://flgado.github.io/blog/categories/</loc>
+    <loc>http://localhost:46613/blog/categories/</loc>
   </url><url>
-    <loc>https://flgado.github.io/blog/tags/</loc>
+    <loc>http://localhost:46613/blog/tags/</loc>
   </url>
 </urlset>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us"><head><meta charset="utf-8">
+<html lang="en-us"><head><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=46613&amp;path=blog/livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="content-type" content="text/html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="en-us" />
 <meta name="language" content="en-us" />
 
-  <link rel="alternate" hreflang="en" href="https://flgado.github.io/blog/posts/post_1/my-first-post/" title="" />
+  <link rel="alternate" hreflang="en" href="http://localhost:46613/blog/posts/post_1/my-first-post/" title="" />
 
 
 
@@ -31,7 +31,7 @@
     <meta property="og:type" content="article" />
     <meta property="og:article:published_time" content=2024-09-11T22:31:07&#43;0100 />
     <meta property="article:published_time" content=2024-09-11T22:31:07&#43;0100 />
-    <meta property="og:url" content="https://flgado.github.io/blog/posts/post_1/my-first-post/" />
+    <meta property="og:url" content="http://localhost:46613/blog/posts/post_1/my-first-post/" />
 
     
 
@@ -66,7 +66,7 @@
 <meta name="generator" content="Hugo 0.134.1">
 
     
-    <meta property="og:url" content="https://flgado.github.io/blog/posts/post_1/my-first-post/">
+    <meta property="og:url" content="http://localhost:46613/blog/posts/post_1/my-first-post/">
   <meta property="og:site_name" content="My New Hugo Site">
   <meta property="og:title" content="Using AWS SAM to Secure IoT with Cognito and Lambda">
   <meta property="og:description" content="Introduction As part of my journey toward earning the AWS Certified Developer certification, I’ve been diving into various AWS services. In this blog, I’ll guide you through setting up a secure API with AWS Cognito for authentication and API Gateway to handle requests. We’ll leverage AWS Lambda to process these API calls, creating a fully serverless architecture.
@@ -88,7 +88,7 @@ I’ll also walk you through how to easily deploy both the API and Cognito confi
 
     
 
-    <link rel="canonical" href="https://flgado.github.io/blog/posts/post_1/my-first-post/">
+    <link rel="canonical" href="http://localhost:46613/blog/posts/post_1/my-first-post/">
     <link href="/blog/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
     <link href="/blog/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
 
@@ -102,7 +102,7 @@ I’ll also walk you through how to easily deploy both the API and Cognito confi
 
 
 
-<link rel="manifest" href="https://flgado.github.io/blog/site.webmanifest">
+<link rel="manifest" href="http://localhost:46613/blog/site.webmanifest">
 
 <meta name="msapplication-config" content="/blog/browserconfig.xml">
 <meta name="msapplication-TileColor" content="#2d89ef">
@@ -111,15 +111,14 @@ I’ll also walk you through how to easily deploy both the API and Cognito confi
     
     <link rel="icon" type="image/svg+xml" href="/blog/icons/favicon.svg">
 
-    
     </head>
 <body data-theme = "" class="notransition">
 
-<script src="/blog/js/theme.min.8961c317c5b88b953fe27525839672c9343f1058ab044696ca225656c8ba2ab0.js" integrity="sha256-iWHDF8W4i5U/4nUlg5ZyyTQ/EFirBEaWyiJWVsi6KrA="></script>
+<script src="/blog/js/theme.js"></script>
 
 <div class="navbar" role="navigation">
     <nav class="menu" aria-label="Main Navigation">
-        <a href="https://flgado.github.io/blog/" class="logo">
+        <a href="http://localhost:46613/blog/" class="logo">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
 stroke-linejoin="round" class="feather feather-home">
@@ -207,7 +206,7 @@ stroke-linejoin="round" class="feather feather-home">
 <li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html">Install SAM</a></li>
 </ul>
 <p>Although this blog doesn’t focus on IAM roles and permissions, to use SAM, I had to set up a user with the following permissions:</p>
-<figure class="center"><img src="/posts/post_1/user_permissions.png"
+<figure class="center"><img src="/blog/images/post_1/user_permissions.png"
     alt="Required User Permissions">
 </figure>
 
@@ -303,7 +302,7 @@ stroke-linejoin="round" class="feather feather-home">
 </span></span><span style="display:flex;"><span>cp lambda/addGroupScopeToIdToken/bootstrap /tmp/samcli/artifacts/.
 </span></span></code></pre></div><p>As you can see, the <code>sam build -u</code> command pulls the <code>public.ecr.aws/sam/build-provided.al2:latest-x86_64</code> image, which is used to build our Lambda function in a containerized environment. The command also runs the makefile to compile our Go binary for the Lambda runtime.</p>
 <p>Once the build completes, you’ll find the compiled binaries inside the <code>.aws-sam</code> directory. Everything’s packaged and ready to go!</p>
-<figure class="center"><img src="/posts/post_1/cognito_builder.png"
+<figure class="center"><img src="/blog/images/post_1/cognito_builder.png"
     alt="Cognito Build"><figcaption>
       <h4>.aws-sam folder</h4>
     </figcaption>
@@ -369,14 +368,14 @@ stroke-linejoin="round" class="feather feather-home">
 <ol>
 <li>Go to the AWS console and navigate to your Cognito User Pool:</li>
 </ol>
-<figure class="center"><img src="/posts/post_1/activate_advance_security_feature.png"
+<figure class="center"><img src="/blog/images/post_1/activate_advance_security_feature.png"
       alt="Cognito Build">
   </figure>
 
 <ol start="2">
 <li>
 <p>Select Activate advanced security features:</p>
-<figure class="center"><img src="/posts/post_1/activate_security_validation.png"
+<figure class="center"><img src="/blog/images/post_1/activate_security_validation.png"
         alt="Cognito Build">
     </figure>
 
@@ -388,14 +387,14 @@ stroke-linejoin="round" class="feather feather-home">
 <ol>
 <li>In your Cognito user pool, navigate to Triggers and select Pre-token generation.</li>
 </ol>
-<figure class="center"><img src="/posts/post_1/enable_pre_token.png"
+<figure class="center"><img src="/blog/images/post_1/enable_pre_token.png"
     alt="Cognito Build">
 </figure>
 
 <ol start="2">
 <li>Choose <code>Basic feature + access token</code> customization and select the Lambda function that was created during our SAM deploy:</li>
 </ol>
-<figure class="center"><img src="/posts/post_1/select_trigger_function.png"
+<figure class="center"><img src="/blog/images/post_1/select_trigger_function.png"
     alt="Select Trigger">
 </figure>
 
@@ -418,19 +417,19 @@ stroke-linejoin="round" class="feather feather-home">
 <li>Go to User Pool &gt; App Integration, and you’ll see your App Client list.</li>
 <li>Use the Client ID from the app created during the SAM deploy.</li>
 </ul>
-<figure class="center"><img src="/posts/post_1/postman_setup.png"
+<figure class="center"><img src="/blog/images/post_1/postman_setup.png"
     alt="Select Trigger">
 </figure>
 
 <h3 id="test">Test</h3>
 <p>Now, let&rsquo;s test this setup with two users—one that belongs to the Admins group and another that doesn’t.</p>
-<p><figure class="center"><img src="/posts/post_1/users.png"
+<p><figure class="center"><img src="/blog/images/post_1/users.png"
     alt="Users"><figcaption>
       <h4>Users List</h4>
     </figcaption>
 </figure>
 
-<figure class="center"><img src="/posts/post_1/user_group.png"
+<figure class="center"><img src="/blog/images/post_1/user_group.png"
     alt="Admin Group"><figcaption>
       <h4>Admin Group</h4>
     </figcaption>
@@ -438,7 +437,7 @@ stroke-linejoin="round" class="feather feather-home">
 </p>
 <h4 id="login-with-admin-user">Login with Admin user</h4>
 <p>Click on  <code>Get new Access Token</code> on Postman. You should see a login page that looks like this:
-<figure class="center"><img src="/posts/post_1/login_page.png"
+<figure class="center"><img src="/blog/images/post_1/login_page.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
@@ -500,14 +499,14 @@ stroke-linejoin="round" class="feather feather-home">
 <h3 id="steps-to-enable-mfa">Steps to Enable MFA:</h3>
 <ol>
 <li>Go to your user pool:
-<figure class="center"><img src="/posts/post_1/mfa_userPool.png"
+<figure class="center"><img src="/blog/images/post_1/mfa_userPool.png"
     alt="User Pool"><figcaption>
       <h4>Cognito User Pool</h4>
     </figcaption>
 </figure>
 </li>
 <li>Click <strong>Edit</strong> under the <strong>MFA and verifications</strong> section:
-<figure class="center"><img src="/posts/post_1/active_mfa.png"
+<figure class="center"><img src="/blog/images/post_1/active_mfa.png"
     alt="MFA Activation"><figcaption>
       <h4>Activate MFA</h4>
     </figcaption>
@@ -517,7 +516,7 @@ stroke-linejoin="round" class="feather feather-home">
 </ol>
 <p>No, seriously—it’s that simple.</p>
 <p>Now, when you try logging in via Postman, you&rsquo;ll be greeted with something like this:</p>
-<figure class="center"><img src="/posts/post_1/qrcode_mfa.png"
+<figure class="center"><img src="/blog/images/post_1/qrcode_mfa.png"
     alt="MFA QR Code"><figcaption>
       <h4>MFA QR Code</h4>
     </figcaption>
@@ -594,7 +593,7 @@ stroke-linejoin="round" class="feather feather-home">
 </span></span></code></pre></div><p>This policy allows the Lambda function to retrieve objects from the <code>jfolgado-homeapp-userprofile-v1</code> S3 bucket. I created this bucket manually, but you can easily automate that with SAM as well—there are tons of guides out there to help with this!</p>
 <h4 id="verifying-permissions-after-deployment">Verifying Permissions After Deployment</h4>
 <p>Once you’ve deployed everything, head to the AWS Console and check out your Lambda function’s permissions. For example, here’s how the Lambda function looks with the policy that allows it to publish to the IoT MQTT topic:</p>
-<figure class="center"><img src="/posts/post_1/mqtt_iot_policie.png"
+<figure class="center"><img src="/blog/images/post_1/mqtt_iot_policie.png"
     alt="IoT Publish Policy"><figcaption>
       <h4>IoT Publish Policy</h4>
     </figcaption>
@@ -672,7 +671,7 @@ stroke-linejoin="round" class="feather feather-home">
 <strong>Parameter Audience</strong>: Your Cognito client ID.</p>
 <h3 id="post-deployment">Post-Deployment</h3>
 <p>After deployment, head to the API Gateway service in your AWS Console. You should see a newly created API that looks like this:</p>
-<figure class="center"><img src="/posts/post_1/api_gateway.png"
+<figure class="center"><img src="/blog/images/post_1/api_gateway.png"
     alt="API Gateway"><figcaption>
       <h4>API Gateway</h4>
     </figcaption>
@@ -684,7 +683,7 @@ stroke-linejoin="round" class="feather feather-home">
 <p>The first test is for the &ldquo;Get Profile Image&rdquo; endpoint. This endpoint allows any authenticated user to make a request, as we haven’t set any restrictions on it. If you recall, the API allows access with the three main scopes: <code>openId</code>, <code>email</code>, and <code>profile</code>.</p>
 <p>A quick explanation: in the Lambda function, I’m using the <code>sub</code> field from the access token to retrieve the image. The <code>sub</code> field is a unique identifier for each user in the Cognito pool. There are many ways to do this, but I chose this approach to demonstrate how the access token can be utilized within Lambda functions.</p>
 <p>Here is an example of calling the endpoint:</p>
-<figure class="center"><img src="/posts/post_1/getAdminImageProfile.png"
+<figure class="center"><img src="/blog/images/post_1/getAdminImageProfile.png"
     alt="Postman login client"><figcaption>
       <h4>Postman API call with profile image response</h4>
     </figcaption>
@@ -692,14 +691,14 @@ stroke-linejoin="round" class="feather feather-home">
 
 <p>As shown above, I received the image encoded in base64 format. This is just for demonstration purposes—there are many ways to return an image.</p>
 <p>When I decode this base64 string, I get the following image:</p>
-<figure class="center"><img src="/posts/post_1/not_admin_user.png"
+<figure class="center"><img src="/blog/images/post_1/not_admin_user.png"
     alt="Non-admin user profile image"><figcaption>
       <h4>Decoded image of a non-admin user</h4>
     </figcaption>
 </figure>
 
 <p>This is for a user who is not in the admin group. However, if I log in with a user who is an admin, I receive a different image:</p>
-<figure class="center"><img src="/posts/post_1/admin_image.png"
+<figure class="center"><img src="/blog/images/post_1/admin_image.png"
     alt="Admin user profile image"><figcaption>
       <h4>Admin user image</h4>
     </figcaption>
@@ -708,7 +707,7 @@ stroke-linejoin="round" class="feather feather-home">
 <p>Yep, I have more privileges than John F**** Wick! 😏</p>
 <h3 id="publish-a-message-on-aws-iot-core">Publish a message on aws iot core</h3>
 <p>The second test involves publishing a message to AWS IoT Core. First, I&rsquo;ll attempt to make the request with a user who is not in the admin group. As expected, it returns an unauthorized error:</p>
-<figure class="center"><img src="/posts/post_1/not_authorized.png"
+<figure class="center"><img src="/blog/images/post_1/not_authorized.png"
     alt="Not authorized response"><figcaption>
       <h4>Unauthorized response from non-admin user</h4>
     </figcaption>
@@ -716,21 +715,21 @@ stroke-linejoin="round" class="feather feather-home">
 
 <p>Now, let’s log in with a user who is in the admin group. Before making the request, I’ll open the AWS IoT Core test console so we can observe the message being published.</p>
 <p>As you can see, there are no messages currently:</p>
-<figure class="center"><img src="/posts/post_1/mqtt_test_without_message.png"
+<figure class="center"><img src="/blog/images/post_1/mqtt_test_without_message.png"
     alt="No MQTT message"><figcaption>
       <h4>AWS IoT MQTT console with no messages</h4>
     </figcaption>
 </figure>
 
 <p>Now, after making the request with the admin user:</p>
-<figure class="center"><img src="/posts/post_1/post_qtt_admin.png"
+<figure class="center"><img src="/blog/images/post_1/post_qtt_admin.png"
     alt="Admin publish request"><figcaption>
       <h4>Admin publishing request</h4>
     </figcaption>
 </figure>
 
 <p>The response is a 200 OK, and if we check the IoT Core console again, a message has indeed been published:</p>
-<figure class="center"><img src="/posts/post_1/publisher_mqtt.png"
+<figure class="center"><img src="/blog/images/post_1/publisher_mqtt.png"
     alt="Message published to MQTT"><figcaption>
       <h4>Message published to AWS IoT MQTT</h4>
     </figcaption>
@@ -843,7 +842,7 @@ Now that Cognito is imported, push the changes to the cloud by running: <code>am
 <p>Here are some key features after the integration:</p>
 <p><strong>1.Login Screen</strong>
 Amplify provides a ready-made login page for you. Once the user logs in, Amplify handles authentication behind the scenes and retrieves the necessary tokens from Cognito.</p>
-<figure class="center"><img src="/posts/post_1/app_login.png"
+<figure class="center"><img src="/blog/images/post_1/app_login.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
@@ -851,7 +850,7 @@ Amplify provides a ready-made login page for you. Once the user logs in, Amplify
 
 <p><strong>2. Home screen</strong>
 After logging in, the home screen is displayed, and in the top left, you can see the profile image retrieved from the /v1/profile-image endpoint (as we implemented earlier). Both buttons in the UI call the /v1/gates/control/ endpoint to publish a message on AWS IoT MQTT.</p>
-<figure class="center"><img src="/posts/post_1/app_homeScreen.png"
+<figure class="center"><img src="/blog/images/post_1/app_homeScreen.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
@@ -859,7 +858,7 @@ After logging in, the home screen is displayed, and in the top left, you can see
 
 <p><strong>3. Profile Screen</strong>
 The profile screen displays user information such as name, email, and other details that are fetched from the Cognito ID token. This data is already available in the token once the user is authenticated.</p>
-<figure class="center"><img src="/posts/post_1/profile_screen.png"
+<figure class="center"><img src="/blog/images/post_1/profile_screen.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
@@ -867,20 +866,20 @@ The profile screen displays user information such as name, email, and other deta
 
 <h3 id="multi-factor-authentication-mfa">Multi-Factor Authentication (MFA)</h3>
 <p>Remember that we enabled MFA during the Cognito setup? After logging in, the user is prompted to provide their MFA code to complete the sign-in process. Here’s what it looks like:</p>
-<figure class="center"><img src="/posts/post_1/login_before_mfa.png"
+<figure class="center"><img src="/blog/images/post_1/login_before_mfa.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
 </figure>
 
 <p>Once the user enters the code, they can successfully complete the login process and gain access to the app.</p>
-<figure class="center"><img src="/posts/post_1/request_totp_code.png"
+<figure class="center"><img src="/blog/images/post_1/request_totp_code.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
 </figure>
 
-<figure class="center"><img src="/posts/post_1/after_totp_code.png"
+<figure class="center"><img src="/blog/images/post_1/after_totp_code.png"
     alt="Select Trigger"><figcaption>
       <h4>Postman login client</h4>
     </figcaption>
@@ -955,7 +954,7 @@ The profile screen displays user information such as name, email, and other deta
 
 
     
-    <script src="https://flgado.github.io/blog/js/main.min.35f435a5d8eac613c52daa28d8af544a4512337d3e95236e4a4978417b8dcb2f.js" integrity="sha256-NfQ1pdjqxhPFLaoo2K9USkUSM30&#43;lSNuSkl4QXuNyy8="></script>
+    <script async src="http://localhost:46613/blog/js/main.js" ></script>
 
     
 

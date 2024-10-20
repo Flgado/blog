@@ -4,7 +4,7 @@ date: 2024-10-19T15:00:00+00:00
 draft: false
 ---
 
-{{< figure src="/about-me.jpeg" alt="Cognito Build" title="" class="center" >}}
+{{< figure src="/blog/images/about-me.jpeg" alt="Cognito Build" title="" class="center" >}}
 
 João Folgado (he/him) is a 30-year-old computer engineer from Portugal, currently living in Castelo Branco. Is a computer engineer currently working on AWS infrastructure, authentication services, and backend development with Go (Golang). With a strong background in distributed systems, he is passionate about building scalable, efficient solutions that serve the needs of modern platforms.
 
