@@ -591,7 +591,7 @@ As you can see, there are no messages currently:
 
 Now, after making the request with the admin user:
 
-{{< figure src="/blog/images/post_1/post_qtt_admin.png" alt="Admin publish request" title="Admin publishing request" class="center" >}}
+{{< figure src="/blog/images/post_1/post_mqtt_admin.png" alt="Admin publish request" title="Admin publishing request" class="center" >}}
 
 The response is a 200 OK, and if we check the IoT Core console again, a message has indeed been published:
 
