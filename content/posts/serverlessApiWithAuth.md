@@ -1,5 +1,5 @@
 +++
-title = 'Deploying a Secure API Using AWS SAM and Cognito Made Eas'
+title = 'Deploying a Secure API Using AWS SAM and Cognito Made Easy'
 date = 2024-10-21T22:31:07+01:00
 draft = false
 +++
