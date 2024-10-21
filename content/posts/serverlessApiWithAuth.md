@@ -1,6 +1,6 @@
 +++
-title = 'Using AWS SAM to Secure IoT with Cognito and Lambda'
-date = 2024-09-11T22:31:07+01:00
+title = 'Deploying a Secure API Using AWS SAM and Cognito Made Eas'
+date = 2024-10-21T22:31:07+01:00
 draft = false
 +++
 # Introduction
@@ -39,6 +39,10 @@ Although this blog doesn’t focus on IAM roles and permissions, to use SAM, I h
 
 Once you have everything set up, you're ready to follow along!
 
+# Repositories
+You can find all the code from this blog on this repositories:
+- [API and Cognito deploy with SAM](https://github.com/Flgado/HomeAppApi)
+- [MobileApp](https://github.com/Flgado/HomeMobileApp)
 
 # SAM (Serverless Application Model)
 ## Setup Cognito

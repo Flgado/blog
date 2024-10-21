@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Using AWS SAM to Secure IoT with Cognito and Lambda | My New Hugo Site</title>
+<meta property="og:title" content="Using AWS SAM to Secure IoT with Cognito and Lambda | My New Hugo Site" />
+<meta name="twitter:title" content="Using AWS SAM to Secure IoT with Cognito and Lambda | My New Hugo Site" />
+<meta itemprop="name" content="Using AWS SAM to Secure IoT with Cognito and Lambda | My New Hugo Site" />
+<meta name="application-name" content="Using AWS SAM to Secure IoT with Cognito and Lambda | My New Hugo Site" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="">
+<meta itemprop="description" content="" />
+<meta property="og:description" content="" />
+<meta name="twitter:description" content="" />
+
+<meta property="og:locale" content="en-us" />
+<meta name="language" content="en-us" />
+
+  <link rel="alternate" hreflang="en" href="http://localhost:1313/blog/posts/post_1/serverlessapiwithauth/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2024-09-11T22:31:07&#43;0100 />
+    <meta property="article:published_time" content=2024-09-11T22:31:07&#43;0100 />
+    <meta property="og:url" content="http://localhost:1313/blog/posts/post_1/serverlessapiwithauth/" />
+
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Using AWS SAM to Secure IoT with Cognito and Lambda",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2024-09-11",
+        "description": "",
+        "wordCount":  4774 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2024-09-11",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "My New Hugo Site"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.134.1">
+
+    
+    <meta property="og:url" content="http://localhost:1313/blog/posts/post_1/serverlessapiwithauth/">
+  <meta property="og:site_name" content="My New Hugo Site">
+  <meta property="og:title" content="Using AWS SAM to Secure IoT with Cognito and Lambda">
+  <meta property="og:description" content="Introduction As part of my journey toward earning the AWS Certified Developer certification, I’ve been diving into various AWS services. In this blog, I’ll guide you through setting up a secure API with AWS Cognito for authentication and API Gateway to handle requests. We’ll leverage AWS Lambda to process these API calls, creating a fully serverless architecture.
+I’ll also walk you through how to easily deploy both the API and Cognito configuration using AWS SAM (Serverless Application Model) and explain how the API integrates with Cognito for authentication. Additionally, I’ll show you how to use the API to interact with other AWS services, such as publishing messages to AWS IoT MQTT and retrieving images from S3 buckets.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-09-11T22:31:07+01:00">
+    <meta property="article:modified_time" content="2024-09-11T22:31:07+01:00">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Using AWS SAM to Secure IoT with Cognito and Lambda">
+  <meta name="twitter:description" content="Introduction As part of my journey toward earning the AWS Certified Developer certification, I’ve been diving into various AWS services. In this blog, I’ll guide you through setting up a secure API with AWS Cognito for authentication and API Gateway to handle requests. We’ll leverage AWS Lambda to process these API calls, creating a fully serverless architecture.
+I’ll also walk you through how to easily deploy both the API and Cognito configuration using AWS SAM (Serverless Application Model) and explain how the API integrates with Cognito for authentication. Additionally, I’ll show you how to use the API to interact with other AWS services, such as publishing messages to AWS IoT MQTT and retrieving images from S3 buckets.">
+
+
+    
+
+    <link rel="canonical" href="http://localhost:1313/blog/posts/post_1/serverlessapiwithauth/">
+    <link href="/blog/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
+    <link href="/blog/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/blog/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/blog/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/blog/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/blog/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/blog/favicon.ico">
+
+
+
+
+<link rel="manifest" href="http://localhost:1313/blog/site.webmanifest">
+
+<meta name="msapplication-config" content="/blog/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/blog/icons/favicon.svg">
+
+    </head>
+<body data-theme = "" class="notransition">
+
+<script src="/blog/js/theme.js"></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="http://localhost:1313/blog/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/blog/">
+                        Home
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/blog/about/">
+                        Bio
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Using AWS SAM to Secure IoT with Cognito and Lambda</h1>
+                
+                
+                <div class="post-meta">
+                    <time datetime="2024-09-11T22:31:07&#43;01:00" itemprop="datePublished"> Sep 11, 2024 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <h1 id="introduction">Introduction</h1>
+<p>As part of my journey toward earning the AWS Certified Developer certification, I’ve been diving into various AWS services. In this blog, I’ll guide you through setting up a secure API with AWS Cognito for authentication and API Gateway to handle requests. We’ll leverage AWS Lambda to process these API calls, creating a fully serverless architecture.</p>
+<p>I’ll also walk you through how to easily deploy both the API and Cognito configuration using AWS SAM (Serverless Application Model) and explain how the API integrates with Cognito for authentication. Additionally, I’ll show you how to use the API to interact with other AWS services, such as publishing messages to AWS IoT MQTT and retrieving images from S3 buckets.</p>
+<p>We’ll explore how to add scopes to access tokens to control permissions and restrict access to specific API endpoints. Finally, I’ll demonstrate how AWS Amplify can quickly set up a mobile app with Cognito authentication, and how to enable multi-factor authentication (MFA) with just a few simple steps.</p>
+<p><strong>The API will have two endpoints</strong>:</p>
+<ul>
+<li>One that triggers a Lambda function to retrieve your profile image from an S3 bucket.</li>
+<li>Another that triggers a Lambda function to publish a message to an AWS IoT topic.</li>
+</ul>
+<p>The second endpoint will require admin access, so I’ll also show you how to customize access tokens to manage permissions and enforce role-based access control.</p>
+<p>To help you get started, here are two GitHub repositories you can use and follow along with:</p>
+<ul>
+<li>API with SAM and Go: This repository contains the API built using AWS SAM, with a Lambda function written in Go.</li>
+<li>React Native Mobile App: This repository includes a mobile app built with React Native, designed to interact with the API.</li>
+</ul>
+<p>Feel free to share any suggestions to make this guide more helpful for others starting similar projects!</p>
+<p>Let’s dive in!</p>
+<h1 id="prerequisites">Prerequisites</h1>
+<p>Before we dive into the tutorial, make sure you have an AWS account and have installed AWS Amplify and SAM (Serverless Application Model) on your local machine. The setup is fairly simple, but just in case you need assistance, here are two helpful links:</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=n4DuYTzpvdE">Install Amplify</a></li>
+<li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html">Install SAM</a></li>
+</ul>
+<p>Although this blog doesn’t focus on IAM roles and permissions, to use SAM, I had to set up a user with the following permissions:</p>
+<figure class="center"><img src="/blog/images/post_1/user_permissions.png"
+    alt="Required User Permissions">
+</figure>
+
+<p>Once you have everything set up, you&rsquo;re ready to follow along!</p>
+<h1 id="repositories">Repositories</h1>
+<p>You can find all the code from this blog on this repositories:</p>
+<ul>
+<li><a href="https://github.com/Flgado/HomeAppApi">API and Cognito deploy with SAM</a></li>
+<li><a href="https://github.com/Flgado/HomeMobileApp">MobileApp</a></li>
+</ul>
+<h1 id="sam-serverless-application-model">SAM (Serverless Application Model)</h1>
+<h2 id="setup-cognito">Setup Cognito</h2>
+<p>In this section, I’ll guide you through creating an authentication system using AWS SAM and Cognito. While I won’t cover every single detail of the <code>.yml</code> file (because let’s be honest, most of it can be Googled!), I will highlight a few key points that are easy to miss and could save you some headaches. You can find the complete configuration in the <code>cognito folder</code> of the project.</p>
+<p>Let’s dive into the most important parts to make sure your setup works smoothly:</p>
+<ol>
+<li><strong>Restrinting User Creation</strong></li>
+</ol>
+<p>In the <code>template.yml</code> file, you’ll notice this configuration:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">AdminCreateUserConfig</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">AllowAdminCreateUserOnly</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><p>This setting ensures that only admins can create new users, which is perfect for my use case since my app is not meant for public sign-ups. I mean, I don’t really want random people controlling devices in my home, right? 😅 But if you want to allow user sign-ups (like for a public-facing app), simply remove these two lines.
+2. <strong>User Groups</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">AdminUserGroup</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::Cognito::UserPoolGroup</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">GroupName</span>: <span style="color:#ae81ff">Admins</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Description</span>: <span style="color:#ae81ff">Admin user group</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Precedence</span>: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">UserPoolId</span>: !<span style="color:#ae81ff">Ref UserPool</span>
+</span></span></code></pre></div><p>I created an <code>Admins group</code> to manage access control for specific endpoints. For instance, certain API endpoints should only be accessible by users in this group. Here’s how you can handle that:</p>
+<ul>
+<li><strong>Check</strong> <code>cognito:groups</code> <strong>in Access Tokens</strong>: When a user makes an API call, you can inspect the <code>cognito:groups</code> field in their access token to check which group they belong to. For example, you might see something like this in the access token:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#e6db74">&#34;sub&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> <span style="color:#e6db74">&#34;b235c4e4-5041-7032-c107-a974bf216ff6&#34;</span><span style="color:#960050;background-color:#1e0010">,</span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;cognito:groups&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;Admins&#34;</span>
+</span></span><span style="display:flex;"><span>]<span style="color:#960050;background-color:#1e0010">,</span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;email_verified&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><p>This lets you validate group membership at the API level (via middleware, for example) and restrict access accordingly.</p>
+<ul>
+<li><code>Customizing Access Tokens with Lambda</code>: But why add unnecessary complexity when Cognito can handle this for you? 😎 As of December 2023, Cognito finally allows us to customize access tokens using Lambda triggers—a long-awaited feature! This makes life easier by letting us modify access tokens directly. You can read more about this awesome update <a href="https://repost.aws/articles/ARlRBV5B86TzmrD6TJvMuHpQ/aws-cognito-finally-supports-custom-claims-for-access-tokens">here</a>.</li>
+</ul>
+<p>Pro tip: I’ve seen some examples where people misuse ID tokens instead of access tokens, probably because in the past, Cognito only let you modify ID tokens. But remember, ID tokens and access tokens have different purposes. For a deeper dive into this topic, check out this great  <a href="https://auth0.com/blog/id-token-access-token-what-is-the-difference/">Auth0 blog post</a> provides a great explanation of the differences.</p>
+<p>Of course, I took the easy route and used the new feature. 😉</p>
+<h3 id="costumize-the-access-token">Costumize the Access token</h3>
+<p>Here’s how I set up my Lambda trigger to add custom claims to the access token:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">TriggerFunction</span>:
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::Serverless::Function</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">Metadata</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">BuildMethod</span>: <span style="color:#ae81ff">makefile</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">BuildTarget</span>: <span style="color:#ae81ff">build-TriggerFunction</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">Condition</span>: <span style="color:#ae81ff">ScopeGroups</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">CodeUri</span>: <span style="color:#ae81ff">.</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Handler</span>: <span style="color:#ae81ff">bootstrap</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Runtime</span>: <span style="color:#ae81ff">provided.al2</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Architectures</span>:
+</span></span><span style="display:flex;"><span>		- <span style="color:#ae81ff">x86_64</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Timeout</span>: <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Events</span>:
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">CognitoTrigger</span>:
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">Type</span>: <span style="color:#ae81ff">Cognito</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">Trigger</span>: <span style="color:#ae81ff">PreTokenGeneration</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">UserPool</span>: !<span style="color:#ae81ff">Ref UserPool</span>
+</span></span></code></pre></div><p>This Lambda function, located in <code>lambda/addGroupScopeToAccessToken</code>, is pretty simple. It retrieves the user’s group and adds it to the scope field in the access token. I also throw in the client ID of my user pool for good measure, in case you need to handle multiple clients.</p>
+<p>Here’s a heads-up: Cognito supports different versions of the pre-token generation trigger. By default, version <code>V1_0</code> only allows modifications to the <code>id_token</code>. If you want to customize the access token too, you’ll need to enable additional functionality—this is the shiny new feature we talked about earlier!</p>
+<p>To get this all working, you&rsquo;ll need to do some manual steps after deployment, as I haven’t found a way to fully automate this through SAM just yet. But don&rsquo;t worry, it’s easy, and I’ll walk you through it after deployment!</p>
+<p>For detailed instructions, you can check out the official <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-token-generation.html">AWS Cognito Pre-Token Generation documentation</a>.</p>
+<h2 id="build-and-deploy-cognito">Build and Deploy Cognito</h2>
+<h3 id="build">Build</h3>
+<p>To get started, you’ll need <code>Docker</code> running on your local machine. We’ll use Docker as an emulator to create an environment that mimics AWS Lambda’s runtime. This ensures that our binary is compatible with Amazon Linux 2 (AL2), which Lambda uses, even if you’re working on a different architecture or operating system locally.</p>
+<p>In the <code>/congito</code> folder, run the following command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sam build -u<span style="color:#e6db74">`</span> 
+</span></span></code></pre></div><p>You&rsquo;ll see output similar to this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sam build -u
+</span></span><span style="display:flex;"><span>Starting Build inside a container                                                                                                      
+</span></span><span style="display:flex;"><span>Building codeuri: /home/joaofolgado/dev/projects/Home/HomeAppApi/cognito runtime: provided.al2 metadata: <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;BuildMethod&#39;</span>: <span style="color:#e6db74">&#39;makefile&#39;</span>,   
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#39;BuildTarget&#39;</span>: <span style="color:#e6db74">&#39;build-TriggerFunction&#39;</span><span style="color:#f92672">}</span> architecture: x86_64 functions: TriggerFunction                                                
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Fetching public.ecr.aws/sam/build-provided.al2:latest-x86_64 Docker container image......
+</span></span><span style="display:flex;"><span>Mounting /home/joaofolgado/dev/projects/Home/HomeAppApi/cognito as /tmp/samcli/source:ro,delegated, inside runtime container           
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Build Succeeded
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Built Artifacts  : .aws-sam/build
+</span></span><span style="display:flex;"><span>Built Template   : .aws-sam/build/template.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Commands you can use next
+</span></span><span style="display:flex;"><span><span style="color:#f92672">=========================</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Validate SAM template: sam validate
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Invoke Function: sam local invoke
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Test Function in the Cloud: sam sync --stack-name <span style="color:#f92672">{{</span>stack-name<span style="color:#f92672">}}</span> --watch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Deploy: sam deploy --guided
+</span></span><span style="display:flex;"><span>TriggerFunction: Running CustomMakeBuilder:CopySource
+</span></span><span style="display:flex;"><span>TriggerFunction: Running CustomMakeBuilder:MakeBuild
+</span></span><span style="display:flex;"><span>TriggerFunction: Current Artifacts Directory : /tmp/samcli/artifacts
+</span></span><span style="display:flex;"><span>GOOS<span style="color:#f92672">=</span>linux CGO_ENABLE<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> go build -o lambda/addGroupScopeToIdToken/bootstrap lambda/addGroupScopeToIdToken/main.go
+</span></span><span style="display:flex;"><span>cp lambda/addGroupScopeToIdToken/bootstrap /tmp/samcli/artifacts/.
+</span></span></code></pre></div><p>As you can see, the <code>sam build -u</code> command pulls the <code>public.ecr.aws/sam/build-provided.al2:latest-x86_64</code> image, which is used to build our Lambda function in a containerized environment. The command also runs the makefile to compile our Go binary for the Lambda runtime.</p>
+<p>Once the build completes, you’ll find the compiled binaries inside the <code>.aws-sam</code> directory. Everything’s packaged and ready to go!</p>
+<figure class="center"><img src="/blog/images/post_1/cognito_builder.png"
+    alt="Cognito Build"><figcaption>
+      <h4>.aws-sam folder</h4>
+    </figcaption>
+</figure>
+
+<h3 id="deploy">Deploy</h3>
+<p>Finally, the fun part—let’s deploy our serverless authentication server!</p>
+<p>Head to the <code>/congito</code> folder and run the following command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sam deploy -g
+</span></span></code></pre></div><p>You should see something like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Configuring SAM deploy
+</span></span><span style="display:flex;"><span><span style="color:#f92672">======================</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Looking <span style="color:#66d9ef">for</span> config file <span style="color:#f92672">[</span>samconfig.toml<span style="color:#f92672">]</span> :  Found
+</span></span><span style="display:flex;"><span>        Reading default arguments  :  Success
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Setting default arguments <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;sam deploy&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">=========================================</span>
+</span></span><span style="display:flex;"><span>        Stack Name: cognitoauthstack
+</span></span><span style="display:flex;"><span>        AWS Region: eu-west-1
+</span></span><span style="display:flex;"><span>        Parameter AppName: homeapp
+</span></span><span style="display:flex;"><span>        Parameter ClientDomains: https://example.com
+</span></span><span style="display:flex;"><span>        Parameter AddGroupsToScopes: true
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#Shows you resources changes to be deployed and require a &#39;Y&#39; to initiate deploy</span>
+</span></span><span style="display:flex;"><span>        Confirm changes before deploy <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#SAM needs permission to be able to create roles to connect to the resources in your template</span>
+</span></span><span style="display:flex;"><span>        Allow SAM CLI IAM role creation <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#Preserves the state of previously provisioned resources when an operation fails</span>
+</span></span><span style="display:flex;"><span>        Disable rollback <span style="color:#f92672">[</span>y/N<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        Save arguments to configuration file <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        SAM configuration file <span style="color:#f92672">[</span>samconfig.toml<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        SAM configuration environment <span style="color:#f92672">[</span>default<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Looking <span style="color:#66d9ef">for</span> resources needed <span style="color:#66d9ef">for</span> deployment:
+</span></span></code></pre></div><p>Because of how the template is set up, you’ll be asked to provide a few inputs:</p>
+<ul>
+<li><strong>Stack Name</strong>: Choose a name for your stack.</li>
+<li><strong>Region</strong>: The AWS region where you want to deploy your Cognito.</li>
+<li><strong>App Name</strong>: The name of your app.</li>
+<li><strong>Client Domains</strong>: You can use a placeholder or your own Callback URLs.</li>
+<li><strong>Add Groups to Scopes</strong>: Set this to true so the access token scopes reflect the user&rsquo;s group.</li>
+</ul>
+<p>Once the deployment finishes, you’ll see some output that looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span>Outputs                                                                                                                                                               
+</span></span><span style="display:flex;"><span>-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+</span></span><span style="display:flex;"><span>Key                 UserPoolClientId                                                                                                                                  
+</span></span><span style="display:flex;"><span>Description         Application client ID                                                                                                                             
+</span></span><span style="display:flex;"><span>Value               72*************                                                                                                                      
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Key                 UserPoolId                                                                                                                                        
+</span></span><span style="display:flex;"><span>Description         User pool ID                                                                                                                                      
+</span></span><span style="display:flex;"><span>Value               eu-west-1_******                                                                                                                               
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Key                 AuthUrl                                                                                                                                           
+</span></span><span style="display:flex;"><span>Description         Url used <span style="color:#66d9ef">for</span> authentication                                                                                                                       
+</span></span><span style="display:flex;"><span>Value               https://homeapp-*******.auth.eu-west-1.amazoncognito.com                                                                                     
+</span></span><span style="display:flex;"><span>----------------------------------------------------------------------------------------- 
+</span></span></code></pre></div><p>Make sure to <strong>save these values</strong>—you&rsquo;ll need them later, and having them handy will make life easier down the road.</p>
+<p>And just like that, your serverless authentication server is deployed! Seems too easy, right? Well, guess what? It’s real! Go to your AWS console, and you should see a Cognito user pool with a Cognito client created, plus a Lambda function ready to go.</p>
+<h3 id="setup-advance-security">Setup Advance security</h3>
+<p>As I mentioned earlier, there’s no way to set up advanced security directly in the SAM template (at least, not that I’ve found), but setting it up manually is straightforward! Here’s how to do it:</p>
+<ol>
+<li>Go to the AWS console and navigate to your Cognito User Pool:</li>
+</ol>
+<figure class="center"><img src="/blog/images/post_1/activate_advance_security_feature.png"
+      alt="Cognito Build">
+  </figure>
+
+<ol start="2">
+<li>
+<p>Select Activate advanced security features:</p>
+<figure class="center"><img src="/blog/images/post_1/activate_security_validation.png"
+        alt="Cognito Build">
+    </figure>
+
+</li>
+</ol>
+<p>You&rsquo;ll see a modal pop up. There&rsquo;s a warning about pricing at the bottom, so make sure you review this and decide whether the additional cost makes sense for your use case. To mitigate costs, you could apply this feature only to sensitive accounts.</p>
+<h4 id="enable-pre-token-generation-trigger">Enable Pre-Token Generation Trigger</h4>
+<p>We also need to enable the Pre-Token Generation trigger, which allows us to modify the access token (instead of just the ID token):</p>
+<ol>
+<li>In your Cognito user pool, navigate to Triggers and select Pre-token generation.</li>
+</ol>
+<figure class="center"><img src="/blog/images/post_1/enable_pre_token.png"
+    alt="Cognito Build">
+</figure>
+
+<ol start="2">
+<li>Choose <code>Basic feature + access token</code> customization and select the Lambda function that was created during our SAM deploy:</li>
+</ol>
+<figure class="center"><img src="/blog/images/post_1/select_trigger_function.png"
+    alt="Select Trigger">
+</figure>
+
+<p>Once you&rsquo;ve made those selections, save your changes, and everything should be good to go!</p>
+<h2 id="test-cognito-with-postman">Test cognito with postman</h2>
+<p>Now that we’ve set up everything, it’s time to test our Cognito authentication using Postman.</p>
+<h3 id="setup">Setup</h3>
+<p>In Postman, follow these steps:</p>
+<ol>
+<li>Go to the Authorization tab.</li>
+<li>Set Type to OAuth 2.0.</li>
+<li>Set Token Name to access.</li>
+<li>Set Grant Type to Authorization Code.</li>
+<li>Set Callback URL to the ClientDomain you specified during deployment (this is the redirect URL).</li>
+<li>Set Auth URL to: <code>https://{UserPoolDomain}.auth.eu-west-1.amazoncognito.com/oauth2/authorize</code></li>
+<li>Set Access Token URL to: <code>https://{UserPoolDomain}.auth.eu-west-1.amazoncognito.com/oauth2/token</code></li>
+<li>Set Client ID to your Cognito Client ID. You can find this in your AWS Console:</li>
+</ol>
+<ul>
+<li>Go to User Pool &gt; App Integration, and you’ll see your App Client list.</li>
+<li>Use the Client ID from the app created during the SAM deploy.</li>
+</ul>
+<figure class="center"><img src="/blog/images/post_1/postman_setup.png"
+    alt="Select Trigger">
+</figure>
+
+<h3 id="test">Test</h3>
+<p>Now, let&rsquo;s test this setup with two users—one that belongs to the Admins group and another that doesn’t.</p>
+<p><figure class="center"><img src="/blog/images/post_1/users.png"
+    alt="Users"><figcaption>
+      <h4>Users List</h4>
+    </figcaption>
+</figure>
+
+<figure class="center"><img src="/blog/images/post_1/user_group.png"
+    alt="Admin Group"><figcaption>
+      <h4>Admin Group</h4>
+    </figcaption>
+</figure>
+</p>
+<h4 id="login-with-admin-user">Login with Admin user</h4>
+<p>Click on  <code>Get new Access Token</code> on Postman. You should see a login page that looks like this:
+<figure class="center"><img src="/blog/images/post_1/login_page.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+</p>
+<p>Once you log in, you’ll receive both the access token and the ID token. Here’s an example of the access token:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;sub&#34;</span>: <span style="color:#e6db74">&#34;b235c4e4-5041-7032-c107-a974bf216ff6&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;cognito:groups&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;Admins&#34;</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;iss&#34;</span>: <span style="color:#e6db74">&#34;https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_E2sbxRVot&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#ae81ff">2</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;client_id&#34;</span>: <span style="color:#e6db74">&#34;72pe87ha1sm73vraqa6scq89pk&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;origin_jti&#34;</span>: <span style="color:#e6db74">&#34;c1932ccb-d8e4-471e-9cd6-463b14d0cb17&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;event_id&#34;</span>: <span style="color:#e6db74">&#34;7e25b6f4-4070-461f-9fbe-7a2ce1c2ec16&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;token_use&#34;</span>: <span style="color:#e6db74">&#34;access&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;scope&#34;</span>: <span style="color:#e6db74">&#34;openid profile Admins-72pe87ha1sm73vraqa6scq89pk email&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;auth_time&#34;</span>: <span style="color:#ae81ff">1727124897</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;exp&#34;</span>: <span style="color:#ae81ff">1727128497</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;iat&#34;</span>: <span style="color:#ae81ff">1727124897</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;jti&#34;</span>: <span style="color:#e6db74">&#34;cfa6f9e2-f292-4b15-afc0-8ddc85a77f38&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;username&#34;</span>: <span style="color:#e6db74">&#34;b235c4e4-5041-7032-c107-a974bf216ff6&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Notice two important fields:</p>
+<ul>
+<li><strong>cognito</strong>: This confirms that the user belongs to the <code>Admins</code> group.</li>
+<li><strong>scope</strong>: You’ll see that <code>Admins-72pe87ha1sm73vraqa6scq89pk</code> was added to the scope field by our Lambda function, which was triggered before the tokens were generated.</li>
+</ul>
+<h4 id="login-with-a-not-admin-user">Login with a not admin user</h4>
+<p>When a user not in the <code>Admins</code> group logs in, the access token looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;sub&#34;</span>: <span style="color:#e6db74">&#34;1205d484-20a1-7053-a8a8-187a43899158&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;iss&#34;</span>: <span style="color:#e6db74">&#34;https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_E2sbxRVot&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#ae81ff">2</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;client_id&#34;</span>: <span style="color:#e6db74">&#34;72pe87ha1sm73vraqa6scq89pk&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;origin_jti&#34;</span>: <span style="color:#e6db74">&#34;b893726c-e0f5-41f7-954a-c852eb49f683&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;event_id&#34;</span>: <span style="color:#e6db74">&#34;091cf9ac-9b17-41b0-9882-da43197a894b&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;token_use&#34;</span>: <span style="color:#e6db74">&#34;access&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;scope&#34;</span>: <span style="color:#e6db74">&#34;openid profile email&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;auth_time&#34;</span>: <span style="color:#ae81ff">1727124837</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;exp&#34;</span>: <span style="color:#ae81ff">1727128437</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;iat&#34;</span>: <span style="color:#ae81ff">1727124837</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;jti&#34;</span>: <span style="color:#e6db74">&#34;63bab15f-a06d-4e4c-b0fa-ca776596390b&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;username&#34;</span>: <span style="color:#e6db74">&#34;1205d484-20a1-7053-a8a8-187a43899158&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here, you’ll notice that:</p>
+<ol>
+<li>There’s <strong>no</strong> <code>cognito:groups</code> field because the user is not part of the <code>Admins</code> group.</li>
+<li>The <strong>scope</strong> field does not include the <code>Group-clientId</code> information.</li>
+</ol>
+<p>This distinction between tokens will be crucial in the next section, where we’ll create two endpoints: one that can be accessed by all users and another restricted to those in the Admin group.</p>
+<h2 id="mfa-drama">Mfa drama</h2>
+<p>&ldquo;Wait&hellip; we need MFA for authentication?!&rdquo; 😱</p>
+<p>Cue the panic: 3 months, 10 sprints dedicated to building a security feature! The PMs are pulling their hair out—&ldquo;Who cares about security? That doesn’t bring in $$$! Where are the features that actually matter??&rdquo;</p>
+<p>Meanwhile, the devs are like, &ldquo;Relax, it’s just your data. What could possibly go wrong?&rdquo; 😏</p>
+<p>But then, a hero developer steps in to save the day. &ldquo;Hold up, we&rsquo;re using Cognito! I can have MFA working in like, 2 minutes!&rdquo;</p>
+<p>And just like that, they show the magic:</p>
+<h3 id="steps-to-enable-mfa">Steps to Enable MFA:</h3>
+<ol>
+<li>Go to your user pool:
+<figure class="center"><img src="/blog/images/post_1/mfa_userPool.png"
+    alt="User Pool"><figcaption>
+      <h4>Cognito User Pool</h4>
+    </figcaption>
+</figure>
+</li>
+<li>Click <strong>Edit</strong> under the <strong>MFA and verifications</strong> section:
+<figure class="center"><img src="/blog/images/post_1/active_mfa.png"
+    alt="MFA Activation"><figcaption>
+      <h4>Activate MFA</h4>
+    </figcaption>
+</figure>
+</li>
+<li>Toggle <strong>MFA</strong> on, hit <strong>Save</strong>, and you&rsquo;re done!</li>
+</ol>
+<p>No, seriously—it’s that simple.</p>
+<p>Now, when you try logging in via Postman, you&rsquo;ll be greeted with something like this:</p>
+<figure class="center"><img src="/blog/images/post_1/qrcode_mfa.png"
+    alt="MFA QR Code"><figcaption>
+      <h4>MFA QR Code</h4>
+    </figcaption>
+</figure>
+
+<p>Scan the QR code, enter the codes, and voilà—you’ll receive the access token.</p>
+<p>That’s it! Done in no time. 🏆</p>
+<p>Of course, when it comes to implementing this on your mobile app or website, you’ve got three options:</p>
+<ol>
+<li>Integrate Cognito with your client from scratch (bring on the coding sessions),</li>
+<li>Use Cognito&rsquo;s built-in UI (handy but limited), or</li>
+<li>Leverage AWS Amplify for a bit more customization (but hey, it&rsquo;s not perfect).</li>
+</ol>
+<p>I hope this section gave you a laugh! Everything will make even more sense in the next section&hellip; promise. 😉</p>
+<h2 id="setup-serverless-api">Setup Serverless Api</h2>
+<p>In this section, we’ll walk through how to create a serverless API with the following features:</p>
+<ul>
+<li><strong>Access token validation</strong>: Users need to authenticate through the Cognito setup we built earlier.</li>
+<li><strong>Publish to AWS IoT via MQTT</strong>: Your API will be able to send messages to IoT topics.</li>
+<li><strong>Fetch images from an S3 bucket</strong>: Retrieve files stored in S3 with ease.</li>
+</ul>
+<p>I won’t go into every technical detail, because I want to keep the pace quick, but I’ll focus on the most important parts:</p>
+<ul>
+<li>How to validate access tokens and scopes.</li>
+<li>How to configure the SAM template to allow Lambda functions to publish to IoT MQTT topics.</li>
+<li>How to allow Lambda functions to retrieve images from S3 buckets.</li>
+</ul>
+<p>The full repository will be available, and the rest of the setup should be straightforward!</p>
+<h3 id="use-cognito-for-authorization-of-the-api-calls">Use cognito for authorization of the Api Calls</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">Auth</span>:
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">Authorizers</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">CognitoAuthorizer</span>:
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Type</span>: <span style="color:#ae81ff">CognitoAuthorizer</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">AuthorizationScopes</span>:
+</span></span><span style="display:flex;"><span>				- <span style="color:#ae81ff">email</span>
+</span></span><span style="display:flex;"><span>				- <span style="color:#ae81ff">openid</span>
+</span></span><span style="display:flex;"><span>				- <span style="color:#ae81ff">profile</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">UserPoolArn</span>: !<span style="color:#ae81ff">Sub arn:aws:cognito-idp:${Region}:${AccountId}:userpool/${Region}${UserPool}</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">DefaultAuthorizer</span>: <span style="color:#ae81ff">CognitoAuthorizer</span>
+</span></span></code></pre></div><p>In this configuration, we’re telling the API to use the Cognito User Pool specified by <code>UserPoolArn</code> (which is the one we created earlier). The access token must include the <code>email</code>, <code>openid</code>, and <code>profile</code> scopes.</p>
+<p>Now, let’s define the authorization for one of the API’s endpoints:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">Events</span>:
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">ControlGate</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Type</span>: <span style="color:#ae81ff">Api </span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Method</span>: <span style="color:#ae81ff">Post</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Path</span>: <span style="color:#ae81ff">/gates/control</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">RestApiId</span>: !<span style="color:#ae81ff">Ref Api</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Auth</span>:
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">Authorizer</span>: <span style="color:#ae81ff">CognitoAuthorizer</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">AuthorizationScopes</span>:
+</span></span><span style="display:flex;"><span>				- !<span style="color:#ae81ff">Sub Admins-${Audience}</span>
+</span></span></code></pre></div><p>This configuration belongs to the <code>MqttPublisherFunction</code> Lambda function. Notice the <code>Admins-${Audience}</code> scope used for this endpoint? This allows only users with that specific scope to access the <code>/gates/control</code> API. Starting to see how things fit together? 😏</p>
+<h3 id="policies-for-lambda-function">Policies for lambda function</h3>
+<ul>
+<li><strong>Allow lambda function to publish to an iot topic</strong>:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">Policies</span>:
+</span></span><span style="display:flex;"><span>	- <span style="color:#f92672">Statement</span>:
+</span></span><span style="display:flex;"><span>		- <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>				- <span style="color:#ae81ff">iot:Publish</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Resource</span>: !<span style="color:#ae81ff">Sub arn:aws:iot:${Region}:${AccountId}:topic/controlGate</span>
+</span></span></code></pre></div><p>This policy grants our Lambda function permission to publish to the controlGate IoT topic</p>
+<ul>
+<li><strong>Allow to read from a S3 Bucket</strong>:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">Policies</span>:
+</span></span><span style="display:flex;"><span>	- <span style="color:#f92672">Statement</span>:
+</span></span><span style="display:flex;"><span>		- <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>				- <span style="color:#ae81ff">s3:GetObject</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">Resource</span>: <span style="color:#ae81ff">arn:aws:s3:::jfolgado-homeapp-userprofile-v1/*</span>
+</span></span></code></pre></div><p>This policy allows the Lambda function to retrieve objects from the <code>jfolgado-homeapp-userprofile-v1</code> S3 bucket. I created this bucket manually, but you can easily automate that with SAM as well—there are tons of guides out there to help with this!</p>
+<h4 id="verifying-permissions-after-deployment">Verifying Permissions After Deployment</h4>
+<p>Once you’ve deployed everything, head to the AWS Console and check out your Lambda function’s permissions. For example, here’s how the Lambda function looks with the policy that allows it to publish to the IoT MQTT topic:</p>
+<figure class="center"><img src="/blog/images/post_1/mqtt_iot_policie.png"
+    alt="IoT Publish Policy"><figcaption>
+      <h4>IoT Publish Policy</h4>
+    </figcaption>
+</figure>
+
+<p>You can see that the function has permission to publish to <code>arn:aws:iot:eu-west-1:717875947258:topic/controlGate</code>.</p>
+<h2 id="build-and-deploy">Build and deploy</h2>
+<h3 id="build-1">Build</h3>
+<p>Just like in the Cognito section, navigate to the /api folder and run sam build -u to build the project.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>rm -rf .aws-sam/
+</span></span><span style="display:flex;"><span>joaofolgado@joaofolgado:~/dev/projects/Home/HomeAppApi/api$ sam build -u
+</span></span><span style="display:flex;"><span>Starting Build inside a container                                                                                                                                         
+</span></span><span style="display:flex;"><span>Building codeuri: /home/joaofolgado/dev/projects/Home/HomeAppApi/api runtime: provided.al2 metadata: <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;BuildMethod&#39;</span>: <span style="color:#e6db74">&#39;makefile&#39;</span>, <span style="color:#e6db74">&#39;BuildTarget&#39;</span>:                           
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#39;build-MqttPublisherFunction&#39;</span><span style="color:#f92672">}</span> architecture: x86_64 functions: MqttPublisherFunction                                                                                      
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Fetching public.ecr.aws/sam/build-provided.al2:latest-x86_64 Docker container image......
+</span></span><span style="display:flex;"><span>Mounting /home/joaofolgado/dev/projects/Home/HomeAppApi/api as /tmp/samcli/source:ro,delegated, inside runtime container                                                  
+</span></span><span style="display:flex;"><span>MqttPublisherFunction: Running CustomMakeBuilder:CopySource
+</span></span><span style="display:flex;"><span>MqttPublisherFunction: Running CustomMakeBuilder:MakeBuild
+</span></span><span style="display:flex;"><span>MqttPublisherFunction: Current Artifacts Directory : /tmp/samcli/artifacts
+</span></span><span style="display:flex;"><span>GOOS<span style="color:#f92672">=</span>linux CGO_ENABLE<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> go build -o lambda/mqttPublisher/bootstrap lambda/mqttPublisher/main.go
+</span></span><span style="display:flex;"><span>cp lambda/mqttPublisher/bootstrap /tmp/samcli/artifacts/.
+</span></span><span style="display:flex;"><span>Building codeuri: /home/joaofolgado/dev/projects/Home/HomeAppApi/api runtime: provided.al2 metadata: <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;BuildMethod&#39;</span>: <span style="color:#e6db74">&#39;makefile&#39;</span>, <span style="color:#e6db74">&#39;BuildTarget&#39;</span>:                           
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#39;build-GetUserProfileImage&#39;</span><span style="color:#f92672">}</span> architecture: x86_64 functions: GetUserProfileImage                                                                                          
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Fetching public.ecr.aws/sam/build-provided.al2:latest-x86_64 Docker container image......
+</span></span><span style="display:flex;"><span>Mounting /home/joaofolgado/dev/projects/Home/HomeAppApi/api as /tmp/samcli/source:ro,delegated, inside runtime container                                                  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Build Succeeded
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Built Artifacts  : .aws-sam/build
+</span></span><span style="display:flex;"><span>Built Template   : .aws-sam/build/template.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Commands you can use next
+</span></span><span style="display:flex;"><span><span style="color:#f92672">=========================</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Validate SAM template: sam validate
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Invoke Function: sam local invoke
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Test Function in the Cloud: sam sync --stack-name <span style="color:#f92672">{{</span>stack-name<span style="color:#f92672">}}</span> --watch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Deploy: sam deploy --guided
+</span></span><span style="display:flex;"><span>GetUserProfileImage: Running CustomMakeBuilder:CopySource
+</span></span><span style="display:flex;"><span>GetUserProfileImage: Running CustomMakeBuilder:MakeBuild
+</span></span><span style="display:flex;"><span>GetUserProfileImage: Current Artifacts Directory : /tmp/samcli/artifacts
+</span></span><span style="display:flex;"><span>GOOS<span style="color:#f92672">=</span>linux CGO_ENABLE<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> go build -o lambda/getUserImageProfile/bootstrap lambda/getUserImageProfile/main.go
+</span></span><span style="display:flex;"><span>cp lambda/getUserImageProfile/bootstrap /tmp/samcli/artifacts/.
+</span></span></code></pre></div><h3 id="deploy-1">Deploy</h3>
+<p>Remember the values that I told you to be close to you ? We will use it now!</p>
+<p>Run <code>sam deploy -g</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Configuring SAM deploy
+</span></span><span style="display:flex;"><span><span style="color:#f92672">======================</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Looking <span style="color:#66d9ef">for</span> config file <span style="color:#f92672">[</span>samconfig.toml<span style="color:#f92672">]</span> :  Found
+</span></span><span style="display:flex;"><span>        Reading default arguments  :  Success
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Setting default arguments <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;sam deploy&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">=========================================</span>
+</span></span><span style="display:flex;"><span>        Stack Name: HomeApi
+</span></span><span style="display:flex;"><span>        AWS Region: eu-west-1
+</span></span><span style="display:flex;"><span>        Parameter UserPool: _E2sbxRVot
+</span></span><span style="display:flex;"><span>        Parameter AccountId: <span style="color:#ae81ff">717875947258</span> 
+</span></span><span style="display:flex;"><span>        Parameter Region: eu-west-1
+</span></span><span style="display:flex;"><span>        Parameter Audience: 72pe87ha1sm73vraqa6scq89pk
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#Shows you resources changes to be deployed and require a &#39;Y&#39; to initiate deploy</span>
+</span></span><span style="display:flex;"><span>        Confirm changes before deploy <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#SAM needs permission to be able to create roles to connect to the resources in your template</span>
+</span></span><span style="display:flex;"><span>        Allow SAM CLI IAM role creation <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#Preserves the state of previously provisioned resources when an operation fails</span>
+</span></span><span style="display:flex;"><span>        Disable rollback <span style="color:#f92672">[</span>y/N<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        Save arguments to configuration file <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        SAM configuration file <span style="color:#f92672">[</span>samconfig.toml<span style="color:#f92672">]</span>: 
+</span></span><span style="display:flex;"><span>        SAM configuration environment <span style="color:#f92672">[</span>default<span style="color:#f92672">]</span>: 
+</span></span></code></pre></div><p>You can find all these parameters on the AWS Console, but if you saved the values from the earlier Cognito deployment, you should use them here:</p>
+<p><strong>Parameter UserPool</strong>: <code>eu-west-1_******</code> (replace <code>******</code> with the actual value from your previous Cognito setup, but don&rsquo;t include the eu-west-1 prefix again).
+<strong>Parameter AccountId</strong>: (your AWS account ID).
+<strong>Region</strong>: The AWS region where you want to deploy the API.
+<strong>Parameter Audience</strong>: Your Cognito client ID.</p>
+<h3 id="post-deployment">Post-Deployment</h3>
+<p>After deployment, head to the API Gateway service in your AWS Console. You should see a newly created API that looks like this:</p>
+<figure class="center"><img src="/blog/images/post_1/api_gateway.png"
+    alt="API Gateway"><figcaption>
+      <h4>API Gateway</h4>
+    </figcaption>
+</figure>
+
+<h2 id="test-api">Test Api</h2>
+<p>In this section, I will demonstrate how our API interacts with Cognito through two examples.</p>
+<h3 id="get-profile-image">Get profile image</h3>
+<p>The first test is for the &ldquo;Get Profile Image&rdquo; endpoint. This endpoint allows any authenticated user to make a request, as we haven’t set any restrictions on it. If you recall, the API allows access with the three main scopes: <code>openId</code>, <code>email</code>, and <code>profile</code>.</p>
+<p>A quick explanation: in the Lambda function, I’m using the <code>sub</code> field from the access token to retrieve the image. The <code>sub</code> field is a unique identifier for each user in the Cognito pool. There are many ways to do this, but I chose this approach to demonstrate how the access token can be utilized within Lambda functions.</p>
+<p>Here is an example of calling the endpoint:</p>
+<figure class="center"><img src="/blog/images/post_1/getAdminImageProfile.png"
+    alt="Postman login client"><figcaption>
+      <h4>Postman API call with profile image response</h4>
+    </figcaption>
+</figure>
+
+<p>As shown above, I received the image encoded in base64 format. This is just for demonstration purposes—there are many ways to return an image.</p>
+<p>When I decode this base64 string, I get the following image:</p>
+<figure class="center"><img src="/blog/images/post_1/not_admin_user.png"
+    alt="Non-admin user profile image"><figcaption>
+      <h4>Decoded image of a non-admin user</h4>
+    </figcaption>
+</figure>
+
+<p>This is for a user who is not in the admin group. However, if I log in with a user who is an admin, I receive a different image:</p>
+<figure class="center"><img src="/blog/images/post_1/admin_image.png"
+    alt="Admin user profile image"><figcaption>
+      <h4>Admin user image</h4>
+    </figcaption>
+</figure>
+
+<p>Yep, I have more privileges than John F**** Wick! 😏</p>
+<h3 id="publish-a-message-on-aws-iot-core">Publish a message on aws iot core</h3>
+<p>The second test involves publishing a message to AWS IoT Core. First, I&rsquo;ll attempt to make the request with a user who is not in the admin group. As expected, it returns an unauthorized error:</p>
+<figure class="center"><img src="/blog/images/post_1/not_authorized.png"
+    alt="Not authorized response"><figcaption>
+      <h4>Unauthorized response from non-admin user</h4>
+    </figcaption>
+</figure>
+
+<p>Now, let’s log in with a user who is in the admin group. Before making the request, I’ll open the AWS IoT Core test console so we can observe the message being published.</p>
+<p>As you can see, there are no messages currently:</p>
+<figure class="center"><img src="/blog/images/post_1/mqtt_test_without_message.png"
+    alt="No MQTT message"><figcaption>
+      <h4>AWS IoT MQTT console with no messages</h4>
+    </figcaption>
+</figure>
+
+<p>Now, after making the request with the admin user:</p>
+<figure class="center"><img src="/blog/images/post_1/post_qtt_admin.png"
+    alt="Admin publish request"><figcaption>
+      <h4>Admin publishing request</h4>
+    </figcaption>
+</figure>
+
+<p>The response is a 200 OK, and if we check the IoT Core console again, a message has indeed been published:</p>
+<figure class="center"><img src="/blog/images/post_1/publisher_mqtt.png"
+    alt="Message published to MQTT"><figcaption>
+      <h4>Message published to AWS IoT MQTT</h4>
+    </figcaption>
+</figure>
+
+<p>This example demonstrates how all the components work together and how easily we can control access to API endpoints based on scopes! 😊</p>
+<p>I hope you enjoyed this section! But wait, there&rsquo;s more! Want to see how all of this works on a mobile app? It’s actually quite easy using AWS Amplify!</p>
+<p>I&rsquo;ll show you how in the next extra section! 🎁</p>
+<h2 id="integrate-cognito-in-your-mobile-app-with-amplify">Integrate Cognito in Your Mobile App with Amplify</h2>
+<p>Alright, let’s talk about integrating Cognito into your mobile app using AWS Amplify. Now, I promise this won’t be a dry, technical marathon—I’ll keep it light, with just the essentials to get you up and running fast. Plus, you’ll have all the code ready to go!</p>
+<h2 id="meet-aws-amplify-the-developers-swiss-army-knife">Meet AWS Amplify: The Developer’s Swiss Army Knife</h2>
+<p>If you haven’t used AWS Amplify yet, get ready. It’s like a one-stop shop for app developers, making it super easy to connect your mobile or web app to AWS services like Cognito, S3, DynamoDB, and more. It’s especially handy when it comes to integrating authentication.</p>
+<p>The best part? Amplify comes with pre-built authentication pages ready to use! With minimal setup, you can handle sign-ups, logins, multi-factor authentication (MFA), and more. It’s like having a personal password manager built right into your app.</p>
+<p>But&hellip; (and you knew there was a &ldquo;but&rdquo; coming) 🛑 Amplify has a few quirks.</p>
+<h2 id="the-big-amplify-quirk">The big Amplify Quirk</h2>
+<p>If you’re using the Amplify UI out of the box, you’re locked into the aws.cognito.signin.user.admin scope. This is highlighted in a <a href="https://github.com/aws-amplify/amplify-js/issues/3732">GitHub issue</a> that’s been bothering developers. Basically, it limits users to changing their attributes in Cognito. Need more custom scopes? Well, they just vanish.</p>
+<p>And that’s not all. There are also some security concerns, as mentioned in this <a href="https://www.truesec.com/hub/blog/aws-cognito-token-security-one-step-closer">blog post</a>. It’s something to keep an eye on!</p>
+<h2 id="how-to-work-around-it-">How to work around it ?</h2>
+<p>Luckily, we’ve got some options! Here are three strategies you can use to integrate Cognito into your app with Amplify, even with those limitations:</p>
+<ol>
+<li>
+<p><strong>Use the Hosted UI</strong>: AWS’s hosted UI provides a quick way to set up authentication with all the features of Cognito. The downside? It’s not very customizable—good enough for basic needs but might not be flexible for more advanced workflows.</p>
+</li>
+<li>
+<p><strong>Manual Integration</strong>: You can manually set up the integration between your mobile app and Cognito. This gives you full control over tokens and scopes, but it takes some effort. Think of it like building your own custom suit—tailored, but a bit time-consuming.</p>
+</li>
+<li>
+<p><strong>Modify Access Tokens in Pre-Build</strong>: This is a more advanced approach but very effective, especially if you have a small user base. Essentially, you modify the access tokens in the pre-build phase using a Lambda function. This way, you bypass Amplify’s UI limitations and gain more flexibility with your scopes.</p>
+</li>
+</ol>
+<h3 id="why-im-going-with-option-3">Why I&rsquo;m Going with Option 3</h3>
+<p>For my app, only a few people (three or four) will use it, so option 3 is the way to go. It’s simple and doesn’t break the bank. In this approach, I tweak the access tokens in the pre-build phase to include the custom scopes I need.</p>
+<p>Here’s a sneak peek at the Lambda function that triggers in the pre-build phase to customize those tokens:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">handler</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">event</span> <span style="color:#a6e22e">Event</span>) (<span style="color:#a6e22e">Event</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">newScopes</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;openid&#34;</span>, <span style="color:#e6db74">&#34;profile&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">claimstoSuppress</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;aws.cognito.signin.user.admin&#34;</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">group</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">Request</span>.<span style="color:#a6e22e">GroupConfiguration</span>.<span style="color:#a6e22e">GroupsToOverride</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">newScope</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s-%s&#34;</span>, <span style="color:#a6e22e">group</span>, <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">CallerContext</span>.<span style="color:#a6e22e">ClientId</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">newScopes</span> = append(<span style="color:#a6e22e">newScopes</span>, <span style="color:#a6e22e">newScope</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">Response</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}{
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;claimsAndScopeOverrideDetails&#34;</span>: <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}{
+</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;accessTokenGeneration&#34;</span>: <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}{
+</span></span><span style="display:flex;"><span>				<span style="color:#e6db74">&#34;scopesToAdd&#34;</span>:      <span style="color:#a6e22e">newScopes</span>,
+</span></span><span style="display:flex;"><span>				<span style="color:#e6db74">&#34;claimsToSuppress&#34;</span>: <span style="color:#a6e22e">claimstoSuppress</span>,
+</span></span><span style="display:flex;"><span>			},
+</span></span><span style="display:flex;"><span>		},
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">event</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="setup-aws-amplify-for-your-mobile-app">Setup AWS Amplify for Your Mobile App</h3>
+<p>Now let’s dive into setting up AWS Amplify with Cognito for your mobile app. Here&rsquo;s the streamlined process to integrate authentication, get user data, and control access using AWS services.</p>
+<p><strong>Step 1: Import Cognito into your mobile App</strong>:</p>
+<p>In your mobile project, use Amplify CLI to import the Cognito user pool. Open your terminal and run the following command:<code>amplify import auth</code></p>
+<p>You’ll be asked what type of auth resource you want to import. Choose Cognito User Pool only:</p>
+<p>This command will show you all the users pools</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>amplify import auth
+</span></span><span style="display:flex;"><span>Using service: Cognito, provided by: awscloudformation
+</span></span><span style="display:flex;"><span>? What type of auth resource <span style="color:#66d9ef">do</span> you want to import? … 
+</span></span><span style="display:flex;"><span>  Cognito User Pool and Identity Pool
+</span></span><span style="display:flex;"><span>▸ Cognito User Pool only
+</span></span></code></pre></div><p><strong>Step 2: Choose Your User Pool</strong>:</p>
+<p>Next, you’ll see a list of available user pools. Select the one you created earlier (e.g., homeapp-UserPool):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Cognito User Pool only
+</span></span><span style="display:flex;"><span>? Select the User Pool you want to import: … 
+</span></span><span style="display:flex;"><span>homeapp-UserPool <span style="color:#f92672">(</span>eu-west-1_E2sbxRVot<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>HomeAppUp-dev <span style="color:#f92672">(</span>eu-west-1_kWEFldSMI<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>HomePool <span style="color:#f92672">(</span>eu-west-1_k1u3r5dH7<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>Type in a partial name or scroll up and down to reveal more choices<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>Amplify will automatically import the associated app client and set it up for you:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Cognito User Pool <span style="color:#e6db74">&#39;homeapp-UserPool&#39;</span> was successfully imported.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Using service: Cognito, provided by: awscloudformation
+</span></span><span style="display:flex;"><span>✔ What type of auth resource <span style="color:#66d9ef">do</span> you want to import? · Cognito User Pool only
+</span></span><span style="display:flex;"><span>✔ Select the User Pool you want to import: · eu-west-1_E2sbxRVot
+</span></span><span style="display:flex;"><span>✔ Only one Web app client found: <span style="color:#e6db74">&#39;homeapp-UserPoolClient&#39;</span> was automatically selected.
+</span></span><span style="display:flex;"><span>✔ Only one Native app client found: <span style="color:#e6db74">&#39;homeapp-UserPoolClient&#39;</span> was automatically selected.
+</span></span><span style="display:flex;"><span>⚠️ ⚠️ It is recommended to use different app client <span style="color:#66d9ef">for</span> web and native application.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>✅ Cognito User Pool <span style="color:#e6db74">&#39;homeapp-UserPool&#39;</span> was successfully imported.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Next steps:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>- This resource will be available <span style="color:#66d9ef">for</span> GraphQL APIs <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;amplify add api&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>- Use Amplify libraries to add sign up, sign in, and sign out capabilities to your client
+</span></span><span style="display:flex;"><span>  application.
+</span></span><span style="display:flex;"><span>  - iOS: https://docs.amplify.aws/lib/auth/getting-started/q/platform/ios
+</span></span><span style="display:flex;"><span>  - Android: https://docs.amplify.aws/lib/auth/getting-started/q/platform/android
+</span></span><span style="display:flex;"><span>  - JavaScript: https://docs.amplify.aws/lib/auth/getting-started/q/platform/js
+</span></span></code></pre></div><p><strong>Step 2: Choose Your User Pool</strong>:
+Now that Cognito is imported, push the changes to the cloud by running: <code>amplify push</code></p>
+<p>This command updates your Amplify backend with the imported Cognito settings:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> amplify push
+</span></span><span style="display:flex;"><span>✔ Successfully pulled backend environment dev from the cloud.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Current Environment: dev
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>┌──────────┬───────────────────────┬───────────┬───────────────────┐
+</span></span><span style="display:flex;"><span>│ Category │ Resource name         │ Operation │ Provider plugin   │
+</span></span><span style="display:flex;"><span>├──────────┼───────────────────────┼───────────┼───────────────────┤
+</span></span><span style="display:flex;"><span>│ Auth     │ homemobileappf58f991f │ Import    │ awscloudformation │
+</span></span><span style="display:flex;"><span>└──────────┴───────────────────────┴───────────┴───────────────────┘
+</span></span><span style="display:flex;"><span>✔ Are you sure you want to <span style="color:#66d9ef">continue</span>? <span style="color:#f92672">(</span>Y/n<span style="color:#f92672">)</span> · yes
+</span></span><span style="display:flex;"><span>⠋ Saving deployment state...
+</span></span><span style="display:flex;"><span>Deployment state saved successfully.
+</span></span></code></pre></div><p>Once the process completes, your mobile app will be connected to the Cognito user pool.</p>
+<h3 id="lets-see-the-app-in-action">Let&rsquo;s See the App in Action</h3>
+<p>Here are some key features after the integration:</p>
+<p><strong>1.Login Screen</strong>
+Amplify provides a ready-made login page for you. Once the user logs in, Amplify handles authentication behind the scenes and retrieves the necessary tokens from Cognito.</p>
+<figure class="center"><img src="/blog/images/post_1/app_login.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<p><strong>2. Home screen</strong>
+After logging in, the home screen is displayed, and in the top left, you can see the profile image retrieved from the /v1/profile-image endpoint (as we implemented earlier). Both buttons in the UI call the /v1/gates/control/ endpoint to publish a message on AWS IoT MQTT.</p>
+<figure class="center"><img src="/blog/images/post_1/app_homeScreen.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<p><strong>3. Profile Screen</strong>
+The profile screen displays user information such as name, email, and other details that are fetched from the Cognito ID token. This data is already available in the token once the user is authenticated.</p>
+<figure class="center"><img src="/blog/images/post_1/profile_screen.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<h3 id="multi-factor-authentication-mfa">Multi-Factor Authentication (MFA)</h3>
+<p>Remember that we enabled MFA during the Cognito setup? After logging in, the user is prompted to provide their MFA code to complete the sign-in process. Here’s what it looks like:</p>
+<figure class="center"><img src="/blog/images/post_1/login_before_mfa.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<p>Once the user enters the code, they can successfully complete the login process and gain access to the app.</p>
+<figure class="center"><img src="/blog/images/post_1/request_totp_code.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<figure class="center"><img src="/blog/images/post_1/after_totp_code.png"
+    alt="Select Trigger"><figcaption>
+      <h4>Postman login client</h4>
+    </figcaption>
+</figure>
+
+<h1 id="recap">Recap</h1>
+<p>And that&rsquo;s it! You&rsquo;ve successfully integrated AWS Amplify with your mobile app, using Cognito for authentication, profile management, and security features like MFA. The login, home, and profile screens are working seamlessly with our API and AWS IoT Core.</p>
+<p>With this setup, your app is ready to scale securely and efficiently! 🎉</p>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://github.com/Flgado" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/JoaoFolgado9/" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri" target="_blank" rel="noopener noreferrer me"
+    title="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+</svg>
+</a>
+<a href="https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2024 João Folgado.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script async src="http://localhost:1313/blog/js/main.js" ></script>
+
+    
+
+</body>
+</html>
