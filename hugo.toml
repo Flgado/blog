@@ -1,7 +1,6 @@
-baseURL = 'https://flgado.github.io/blog/'
+baseURL = 'https://flgado.github.io/'
 languageCode = 'en-us'
 title = 'Techshepre'
-publishDir = "docs"
 
 theme = "folgado"
 
