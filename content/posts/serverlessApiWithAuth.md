@@ -294,7 +294,7 @@ Now, let's test this setup with two users—one that belongs to the Admins group
 #### Login with Admin user
 
 Click on  `Get new Access Token` on Postman. You should see a login page that looks like this:
-{{< figure src="/blog/images/post_1/login_page.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/login_page.png" alt="Select Trigger" title="" class="center" >}}
 
 Once you log in, you’ll receive both the access token and the ID token. Here’s an example of the access token:
 ``` json
@@ -746,31 +746,31 @@ Here are some key features after the integration:
 **1.Login Screen**
 Amplify provides a ready-made login page for you. Once the user logs in, Amplify handles authentication behind the scenes and retrieves the necessary tokens from Cognito.
 
-{{< figure src="/blog/images/post_1/app_login.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/app_login.png" alt="Select Trigger" title="App Login" class="center" >}}
 
 **2. Home screen**
 After logging in, the home screen is displayed, and in the top left, you can see the profile image retrieved from the /v1/profile-image endpoint (as we implemented earlier). Both buttons in the UI call the /v1/gates/control/ endpoint to publish a message on AWS IoT MQTT.
 
-{{< figure src="/blog/images/post_1/app_homeScreen.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/app_homeScreen.png" alt="Select Trigger" title="Home Screen" class="center" >}}
 
 
 **3. Profile Screen** 
 The profile screen displays user information such as name, email, and other details that are fetched from the Cognito ID token. This data is already available in the token once the user is authenticated.
 
-{{< figure src="/blog/images/post_1/profile_screen.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/profile_screen.png" alt="Select Trigger" title="Profile Screen" class="center" >}}
 
 
 ### Multi-Factor Authentication (MFA)
 
 Remember that we enabled MFA during the Cognito setup? After logging in, the user is prompted to provide their MFA code to complete the sign-in process. Here’s what it looks like: 
 
-{{< figure src="/blog/images/post_1/login_before_mfa.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/login_before_mfa.png" alt="Select Trigger" title="Login" class="center" >}}
 
 Once the user enters the code, they can successfully complete the login process and gain access to the app.
 
-{{< figure src="/blog/images/post_1/request_totp_code.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/request_totp_code.png" alt="Select Trigger" title="Mfa code request" class="center" >}}
 
-{{< figure src="/blog/images/post_1/after_totp_code.png" alt="Select Trigger" title="Postman login client" class="center" >}}
+{{< figure src="/blog/images/post_1/after_totp_code.png" alt="Select Trigger" title="Home page" class="center" >}}
 
 
 # Recap 

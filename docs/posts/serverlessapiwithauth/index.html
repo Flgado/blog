@@ -48,7 +48,7 @@
         },
         "datePublished": "2024-10-21",
         "description": "",
-        "wordCount":  4774 ,
+        "wordCount":  4765 ,
         "mainEntityOfPage": "True",
         "dateModified": "2024-10-21",
         "image": {
@@ -448,9 +448,7 @@ stroke-linejoin="round" class="feather feather-home">
 <h4 id="login-with-admin-user">Login with Admin user</h4>
 <p>Click on  <code>Get new Access Token</code> on Postman. You should see a login page that looks like this:
 <figure class="center"><img src="/blog/images/post_1/login_page.png"
-    alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
-    </figcaption>
+    alt="Select Trigger">
 </figure>
 </p>
 <p>Once you log in, you’ll receive both the access token and the ID token. Here’s an example of the access token:</p>
@@ -854,7 +852,7 @@ Now that Cognito is imported, push the changes to the cloud by running: <code>am
 Amplify provides a ready-made login page for you. Once the user logs in, Amplify handles authentication behind the scenes and retrieves the necessary tokens from Cognito.</p>
 <figure class="center"><img src="/blog/images/post_1/app_login.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>App Login</h4>
     </figcaption>
 </figure>
 
@@ -862,7 +860,7 @@ Amplify provides a ready-made login page for you. Once the user logs in, Amplify
 After logging in, the home screen is displayed, and in the top left, you can see the profile image retrieved from the /v1/profile-image endpoint (as we implemented earlier). Both buttons in the UI call the /v1/gates/control/ endpoint to publish a message on AWS IoT MQTT.</p>
 <figure class="center"><img src="/blog/images/post_1/app_homeScreen.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>Home Screen</h4>
     </figcaption>
 </figure>
 
@@ -870,7 +868,7 @@ After logging in, the home screen is displayed, and in the top left, you can see
 The profile screen displays user information such as name, email, and other details that are fetched from the Cognito ID token. This data is already available in the token once the user is authenticated.</p>
 <figure class="center"><img src="/blog/images/post_1/profile_screen.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>Profile Screen</h4>
     </figcaption>
 </figure>
 
@@ -878,20 +876,20 @@ The profile screen displays user information such as name, email, and other deta
 <p>Remember that we enabled MFA during the Cognito setup? After logging in, the user is prompted to provide their MFA code to complete the sign-in process. Here’s what it looks like:</p>
 <figure class="center"><img src="/blog/images/post_1/login_before_mfa.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>Login</h4>
     </figcaption>
 </figure>
 
 <p>Once the user enters the code, they can successfully complete the login process and gain access to the app.</p>
 <figure class="center"><img src="/blog/images/post_1/request_totp_code.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>Mfa code request</h4>
     </figcaption>
 </figure>
 
 <figure class="center"><img src="/blog/images/post_1/after_totp_code.png"
     alt="Select Trigger"><figcaption>
-      <h4>Postman login client</h4>
+      <h4>Home page</h4>
     </figcaption>
 </figure>
 
