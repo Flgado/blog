@@ -3,6 +3,9 @@ title = 'Deploying a Secure API Using AWS SAM and Cognito Made Easy'
 date = 2024-10-21T22:31:07+01:00
 draft = false
 +++
+
+{{< figure src="/blog/images/post_1/graphic.jpeg" alt="" title="" class="center" >}}
+
 # Introduction
 
 As part of my journey toward earning the AWS Certified Developer certification, I’ve been diving into various AWS services. In this blog, I’ll guide you through setting up a secure API with AWS Cognito for authentication and API Gateway to handle requests. We’ll leverage AWS Lambda to process these API calls, creating a fully serverless architecture.
