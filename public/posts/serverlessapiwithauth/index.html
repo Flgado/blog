@@ -48,7 +48,7 @@
         },
         "datePublished": "2024-10-21",
         "description": "",
-        "wordCount":  4765 ,
+        "wordCount":  4745 ,
         "mainEntityOfPage": "True",
         "dateModified": "2024-10-21",
         "image": {
@@ -198,8 +198,8 @@ stroke-linejoin="round" class="feather feather-home">
 <p>The second endpoint will require admin access, so I’ll also show you how to customize access tokens to manage permissions and enforce role-based access control.</p>
 <p>To help you get started, here are two GitHub repositories you can use and follow along with:</p>
 <ul>
-<li>API with SAM and Go: This repository contains the API built using AWS SAM, with a Lambda function written in Go.</li>
-<li>React Native Mobile App: This repository includes a mobile app built with React Native, designed to interact with the API.</li>
+<li><a href="https://github.com/Flgado/HomeAppApi">API with SAM and Go</a>: This repository contains the API built using AWS SAM, with a Lambda function written in Go.</li>
+<li><a href="https://github.com/Flgado/HomeMobileApp">React Native Mobile App</a>: This repository includes a mobile app built with React Native, designed to interact with the API.</li>
 </ul>
 <p>Feel free to share any suggestions to make this guide more helpful for others starting similar projects!</p>
 <p>Let’s dive in!</p>
@@ -215,18 +215,12 @@ stroke-linejoin="round" class="feather feather-home">
 </figure>
 
 <p>Once you have everything set up, you&rsquo;re ready to follow along!</p>
-<h1 id="repositories">Repositories</h1>
-<p>You can find all the code from this blog on this repositories:</p>
-<ul>
-<li><a href="https://github.com/Flgado/HomeAppApi">API and Cognito deploy with SAM</a></li>
-<li><a href="https://github.com/Flgado/HomeMobileApp">MobileApp</a></li>
-</ul>
 <h1 id="sam-serverless-application-model">SAM (Serverless Application Model)</h1>
 <h2 id="setup-cognito">Setup Cognito</h2>
 <p>In this section, I’ll guide you through creating an authentication system using AWS SAM and Cognito. While I won’t cover every single detail of the <code>.yml</code> file (because let’s be honest, most of it can be Googled!), I will highlight a few key points that are easy to miss and could save you some headaches. You can find the complete configuration in the <code>cognito folder</code> of the project.</p>
 <p>Let’s dive into the most important parts to make sure your setup works smoothly:</p>
 <ol>
-<li><strong>Restrinting User Creation</strong></li>
+<li><strong>Restricting User Creation</strong></li>
 </ol>
 <p>In the <code>template.yml</code> file, you’ll notice this configuration:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">AdminCreateUserConfig</span>:

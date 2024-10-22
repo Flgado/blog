@@ -23,8 +23,8 @@ The second endpoint will require admin access, so I’ll also show you how to cu
 
 To help you get started, here are two GitHub repositories you can use and follow along with:
 
-- API with SAM and Go: This repository contains the API built using AWS SAM, with a Lambda function written in Go.
--  React Native Mobile App: This repository includes a mobile app built with React Native, designed to interact with the API.
+- [API with SAM and Go](https://github.com/Flgado/HomeAppApi): This repository contains the API built using AWS SAM, with a Lambda function written in Go.
+-  [React Native Mobile App](https://github.com/Flgado/HomeMobileApp): This repository includes a mobile app built with React Native, designed to interact with the API.
 
 Feel free to share any suggestions to make this guide more helpful for others starting similar projects!
 
@@ -42,11 +42,6 @@ Although this blog doesn’t focus on IAM roles and permissions, to use SAM, I h
 
 Once you have everything set up, you're ready to follow along!
 
-# Repositories
-You can find all the code from this blog on this repositories:
-- [API and Cognito deploy with SAM](https://github.com/Flgado/HomeAppApi)
-- [MobileApp](https://github.com/Flgado/HomeMobileApp)
-
 # SAM (Serverless Application Model)
 ## Setup Cognito
 
@@ -54,7 +49,7 @@ In this section, I’ll guide you through creating an authentication system usin
 
 Let’s dive into the most important parts to make sure your setup works smoothly:
 
-1. **Restrinting User Creation**
+1. **Restricting User Creation**
 
 In the `template.yml` file, you’ll notice this configuration:
 ``` yml
