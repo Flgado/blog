@@ -4,7 +4,7 @@ date = 2024-10-21T22:31:07+01:00
 draft = false
 +++
 
-{{< figure src="/blog/images/post_1/graphic.jpeg" alt="" title="" class="center" >}}
+{{< figure src="/images/post_1/graphic.jpeg" alt="" title="" class="center" >}}
 
 # Introduction
 
@@ -38,7 +38,7 @@ Before we dive into the tutorial, make sure you have an AWS account and have ins
 
 Although this blog doesn’t focus on IAM roles and permissions, to use SAM, I had to set up a user with the following permissions:
 
-{{< figure src="/blog/images/post_1/user_permissions.png" alt="Required User Permissions" title="" class="center" >}}
+{{< figure src="/images/post_1/user_permissions.png" alt="Required User Permissions" title="" class="center" >}}
 
 Once you have everything set up, you're ready to follow along!
 
@@ -86,7 +86,7 @@ This lets you validate group membership at the API level (via middleware, for ex
 
 - `Customizing Access Tokens with Lambda`: But why add unnecessary complexity when Cognito can handle this for you? 😎 As of December 2023, Cognito finally allows us to customize access tokens using Lambda triggers—a long-awaited feature! This makes life easier by letting us modify access tokens directly. You can read more about this awesome update [here](https://repost.aws/articles/ARlRBV5B86TzmrD6TJvMuHpQ/aws-cognito-finally-supports-custom-claims-for-access-tokens). 
 
-Pro tip: I’ve seen some examples where people misuse ID tokens instead of access tokens, probably because in the past, Cognito only let you modify ID tokens. But remember, ID tokens and access tokens have different purposes. For a deeper dive into this topic, check out this great  [Auth0 blog post](https://auth0.com/blog/id-token-access-token-what-is-the-difference/) provides a great explanation of the differences.
+Pro tip: I’ve seen some examples where people misuse ID tokens instead of access tokens, probably because in the past, Cognito only let you modify ID tokens. But remember, ID tokens and access tokens have different purposes. For a deeper dive into this topic, check out this great  [Auth0 blog post](https://auth0.com/id-token-access-token-what-is-the-difference/) provides a great explanation of the differences.
 
 Of course, I took the easy route and used the new feature. 😉
 
@@ -167,7 +167,7 @@ As you can see, the `sam build -u` command pulls the `public.ecr.aws/sam/build-p
 
 Once the build completes, you’ll find the compiled binaries inside the `.aws-sam` directory. Everything’s packaged and ready to go!
 
-{{< figure src="/blog/images/post_1/cognito_builder.png" alt="Cognito Build" title=".aws-sam folder" class="center" >}}
+{{< figure src="/images/post_1/cognito_builder.png" alt="Cognito Build" title=".aws-sam folder" class="center" >}}
 
 ### Deploy
 
@@ -243,11 +243,11 @@ As I mentioned earlier, there’s no way to set up advanced security directly in
 
 1. Go to the AWS console and navigate to your Cognito User Pool:
 
-  {{< figure src="/blog/images/post_1/activate_advance_security_feature.png" alt="Cognito Build" title="" class="center" >}}
+  {{< figure src="/images/post_1/activate_advance_security_feature.png" alt="Cognito Build" title="" class="center" >}}
 
 2. Select Activate advanced security features:
 
-    {{< figure src="/blog/images/post_1/activate_security_validation.png" alt="Cognito Build" title="" class="center" >}}
+    {{< figure src="/images/post_1/activate_security_validation.png" alt="Cognito Build" title="" class="center" >}}
 
 You'll see a modal pop up. There's a warning about pricing at the bottom, so make sure you review this and decide whether the additional cost makes sense for your use case. To mitigate costs, you could apply this feature only to sensitive accounts.
 
@@ -256,11 +256,11 @@ We also need to enable the Pre-Token Generation trigger, which allows us to modi
 
 1. In your Cognito user pool, navigate to Triggers and select Pre-token generation.
 
-{{< figure src="/blog/images/post_1/enable_pre_token.png" alt="Cognito Build" title="" class="center" >}}
+{{< figure src="/images/post_1/enable_pre_token.png" alt="Cognito Build" title="" class="center" >}}
 
 2. Choose `Basic feature + access token` customization and select the Lambda function that was created during our SAM deploy:
 
-{{< figure src="/blog/images/post_1/select_trigger_function.png" alt="Select Trigger" title="" class="center" >}}
+{{< figure src="/images/post_1/select_trigger_function.png" alt="Select Trigger" title="" class="center" >}}
 
 Once you've made those selections, save your changes, and everything should be good to go!
 
@@ -281,20 +281,20 @@ In Postman, follow these steps:
  - Go to User Pool > App Integration, and you’ll see your App Client list.
  - Use the Client ID from the app created during the SAM deploy.
 
-{{< figure src="/blog/images/post_1/postman_setup.png" alt="Select Trigger" title="" class="center" >}}
+{{< figure src="/images/post_1/postman_setup.png" alt="Select Trigger" title="" class="center" >}}
 
 
 ### Test
 
 Now, let's test this setup with two users—one that belongs to the Admins group and another that doesn’t.
 
-{{< figure src="/blog/images/post_1/users.png" alt="Users" title="Users List" class="center" >}}
-{{< figure src="/blog/images/post_1/user_group.png" alt="Admin Group" title="Admin Group" class="center" >}}
+{{< figure src="/images/post_1/users.png" alt="Users" title="Users List" class="center" >}}
+{{< figure src="/images/post_1/user_group.png" alt="Admin Group" title="Admin Group" class="center" >}}
 
 #### Login with Admin user
 
 Click on  `Get new Access Token` on Postman. You should see a login page that looks like this:
-{{< figure src="/blog/images/post_1/login_page.png" alt="Select Trigger" title="" class="center" >}}
+{{< figure src="/images/post_1/login_page.png" alt="Select Trigger" title="" class="center" >}}
 
 Once you log in, you’ll receive both the access token and the ID token. Here’s an example of the access token:
 ``` json
@@ -363,16 +363,16 @@ And just like that, they show the magic:
 
 ### Steps to Enable MFA:
 1. Go to your user pool:
-{{< figure src="/blog/images/post_1/mfa_userPool.png" alt="User Pool" title="Cognito User Pool" class="center" >}}
+{{< figure src="/images/post_1/mfa_userPool.png" alt="User Pool" title="Cognito User Pool" class="center" >}}
 2. Click **Edit** under the **MFA and verifications** section:
-{{< figure src="/blog/images/post_1/active_mfa.png" alt="MFA Activation" title="Activate MFA" class="center" >}}
+{{< figure src="/images/post_1/active_mfa.png" alt="MFA Activation" title="Activate MFA" class="center" >}}
 3. Toggle **MFA** on, hit **Save**, and you're done!
 
 No, seriously—it’s that simple.
 
 Now, when you try logging in via Postman, you'll be greeted with something like this:
 
-{{< figure src="/blog/images/post_1/qrcode_mfa.png" alt="MFA QR Code" title="MFA QR Code" class="center" >}}
+{{< figure src="/images/post_1/qrcode_mfa.png" alt="MFA QR Code" title="MFA QR Code" class="center" >}}
 
 Scan the QR code, enter the codes, and voilà—you’ll receive the access token.
 
@@ -464,7 +464,7 @@ This policy allows the Lambda function to retrieve objects from the `jfolgado-ho
 
 Once you’ve deployed everything, head to the AWS Console and check out your Lambda function’s permissions. For example, here’s how the Lambda function looks with the policy that allows it to publish to the IoT MQTT topic:
 
-{{< figure src="/blog/images/post_1/mqtt_iot_policie.png" alt="IoT Publish Policy" title="IoT Publish Policy" class="center" >}}
+{{< figure src="/images/post_1/mqtt_iot_policie.png" alt="IoT Publish Policy" title="IoT Publish Policy" class="center" >}}
 
 You can see that the function has permission to publish to `arn:aws:iot:eu-west-1:717875947258:topic/controlGate`.
 
@@ -554,7 +554,7 @@ You can find all these parameters on the AWS Console, but if you saved the value
 ### Post-Deployment
 After deployment, head to the API Gateway service in your AWS Console. You should see a newly created API that looks like this:
 
-{{< figure src="/blog/images/post_1/api_gateway.png" alt="API Gateway" title="API Gateway" class="center" >}}
+{{< figure src="/images/post_1/api_gateway.png" alt="API Gateway" title="API Gateway" class="center" >}}
 
 ## Test Api
 
@@ -567,38 +567,38 @@ A quick explanation: in the Lambda function, I’m using the `sub` field from th
 
 Here is an example of calling the endpoint:
 
-{{< figure src="/blog/images/post_1/getAdminImageProfile.png" alt="Postman login client" title="Postman API call with profile image response" class="center" >}}
+{{< figure src="/images/post_1/getAdminImageProfile.png" alt="Postman login client" title="Postman API call with profile image response" class="center" >}}
 
 As shown above, I received the image encoded in base64 format. This is just for demonstration purposes—there are many ways to return an image.
 
 When I decode this base64 string, I get the following image:
 
-{{< figure src="/blog/images/post_1/not_admin_user.png" alt="Non-admin user profile image" title="Decoded image of a non-admin user" class="center" >}}
+{{< figure src="/images/post_1/not_admin_user.png" alt="Non-admin user profile image" title="Decoded image of a non-admin user" class="center" >}}
 
 This is for a user who is not in the admin group. However, if I log in with a user who is an admin, I receive a different image:
 
-{{< figure src="/blog/images/post_1/admin_image.png" alt="Admin user profile image" title="Admin user image" class="center" >}}
+{{< figure src="/images/post_1/admin_image.png" alt="Admin user profile image" title="Admin user image" class="center" >}}
 
 Yep, I have more privileges than John F**** Wick! 😏
 
  ### Publish a message on aws iot core
 The second test involves publishing a message to AWS IoT Core. First, I'll attempt to make the request with a user who is not in the admin group. As expected, it returns an unauthorized error:
 
-{{< figure src="/blog/images/post_1/not_authorized.png" alt="Not authorized response" title="Unauthorized response from non-admin user" class="center" >}}
+{{< figure src="/images/post_1/not_authorized.png" alt="Not authorized response" title="Unauthorized response from non-admin user" class="center" >}}
 
 Now, let’s log in with a user who is in the admin group. Before making the request, I’ll open the AWS IoT Core test console so we can observe the message being published.
 
 As you can see, there are no messages currently:
 
-{{< figure src="/blog/images/post_1/mqtt_test_without_message.png" alt="No MQTT message" title="AWS IoT MQTT console with no messages" class="center" >}}
+{{< figure src="/images/post_1/mqtt_test_without_message.png" alt="No MQTT message" title="AWS IoT MQTT console with no messages" class="center" >}}
 
 Now, after making the request with the admin user:
 
-{{< figure src="/blog/images/post_1/post_mqtt_admin.png" alt="Admin publish request" title="Admin publishing request" class="center" >}}
+{{< figure src="/images/post_1/post_mqtt_admin.png" alt="Admin publish request" title="Admin publishing request" class="center" >}}
 
 The response is a 200 OK, and if we check the IoT Core console again, a message has indeed been published:
 
-{{< figure src="/blog/images/post_1/publisher_mqtt.png" alt="Message published to MQTT" title="Message published to AWS IoT MQTT" class="center" >}}
+{{< figure src="/images/post_1/publisher_mqtt.png" alt="Message published to MQTT" title="Message published to AWS IoT MQTT" class="center" >}}
 
 This example demonstrates how all the components work together and how easily we can control access to API endpoints based on scopes! 😊
 
@@ -621,7 +621,7 @@ But... (and you knew there was a "but" coming) 🛑 Amplify has a few quirks.
 
 If you’re using the Amplify UI out of the box, you’re locked into the aws.cognito.signin.user.admin scope. This is highlighted in a [GitHub issue](https://github.com/aws-amplify/amplify-js/issues/3732) that’s been bothering developers. Basically, it limits users to changing their attributes in Cognito. Need more custom scopes? Well, they just vanish.
 
-And that’s not all. There are also some security concerns, as mentioned in this [blog post](https://www.truesec.com/hub/blog/aws-cognito-token-security-one-step-closer). It’s something to keep an eye on!
+And that’s not all. There are also some security concerns, as mentioned in this [blog post](https://www.truesec.com/hub/aws-cognito-token-security-one-step-closer). It’s something to keep an eye on!
 
 ## How to work around it ?
 Luckily, we’ve got some options! Here are three strategies you can use to integrate Cognito into your app with Amplify, even with those limitations:
@@ -746,31 +746,31 @@ Here are some key features after the integration:
 **1.Login Screen**
 Amplify provides a ready-made login page for you. Once the user logs in, Amplify handles authentication behind the scenes and retrieves the necessary tokens from Cognito.
 
-{{< figure src="/blog/images/post_1/app_login.png" alt="Select Trigger" title="App Login" class="center" >}}
+{{< figure src="/images/post_1/app_login.png" alt="Select Trigger" title="App Login" class="center" >}}
 
 **2. Home screen**
 After logging in, the home screen is displayed, and in the top left, you can see the profile image retrieved from the /v1/profile-image endpoint (as we implemented earlier). Both buttons in the UI call the /v1/gates/control/ endpoint to publish a message on AWS IoT MQTT.
 
-{{< figure src="/blog/images/post_1/app_homeScreen.png" alt="Select Trigger" title="Home Screen" class="center" >}}
+{{< figure src="/images/post_1/app_homeScreen.png" alt="Select Trigger" title="Home Screen" class="center" >}}
 
 
 **3. Profile Screen** 
 The profile screen displays user information such as name, email, and other details that are fetched from the Cognito ID token. This data is already available in the token once the user is authenticated.
 
-{{< figure src="/blog/images/post_1/profile_screen.png" alt="Select Trigger" title="Profile Screen" class="center" >}}
+{{< figure src="/images/post_1/profile_screen.png" alt="Select Trigger" title="Profile Screen" class="center" >}}
 
 
 ### Multi-Factor Authentication (MFA)
 
 Remember that we enabled MFA during the Cognito setup? After logging in, the user is prompted to provide their MFA code to complete the sign-in process. Here’s what it looks like: 
 
-{{< figure src="/blog/images/post_1/login_before_mfa.png" alt="Select Trigger" title="Login" class="center" >}}
+{{< figure src="/images/post_1/login_before_mfa.png" alt="Select Trigger" title="Login" class="center" >}}
 
 Once the user enters the code, they can successfully complete the login process and gain access to the app.
 
-{{< figure src="/blog/images/post_1/request_totp_code.png" alt="Select Trigger" title="Mfa code request" class="center" >}}
+{{< figure src="/images/post_1/request_totp_code.png" alt="Select Trigger" title="Mfa code request" class="center" >}}
 
-{{< figure src="/blog/images/post_1/after_totp_code.png" alt="Select Trigger" title="Home page" class="center" >}}
+{{< figure src="/images/post_1/after_totp_code.png" alt="Select Trigger" title="Home page" class="center" >}}
 
 
 # Recap 
