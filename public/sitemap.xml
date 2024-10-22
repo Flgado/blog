@@ -2,20 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://blog-b5w.pages.dev/posts/serverlessapiwithauth/</loc>
+    <loc>https://jfolgado.com/posts/serverlessapiwithauth/</loc>
     <lastmod>2024-10-21T22:31:07+01:00</lastmod>
   </url><url>
-    <loc>https://blog-b5w.pages.dev/posts/</loc>
+    <loc>https://jfolgado.com/posts/</loc>
     <lastmod>2024-10-21T22:31:07+01:00</lastmod>
   </url><url>
-    <loc>https://blog-b5w.pages.dev/</loc>
+    <loc>https://jfolgado.com/</loc>
     <lastmod>2024-10-21T22:31:07+01:00</lastmod>
   </url><url>
-    <loc>https://blog-b5w.pages.dev/about/</loc>
+    <loc>https://jfolgado.com/about/</loc>
     <lastmod>2024-10-19T15:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://blog-b5w.pages.dev/categories/</loc>
+    <loc>https://jfolgado.com/categories/</loc>
   </url><url>
-    <loc>https://blog-b5w.pages.dev/tags/</loc>
+    <loc>https://jfolgado.com/tags/</loc>
   </url>
 </urlset>
