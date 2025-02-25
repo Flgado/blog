@@ -244,7 +244,7 @@ As I mentioned earlier, there’s no way to set up advanced security directly in
 
     {{< figure src="/images/post_1/activate_security_validation.png" alt="Cognito Build" title="" class="center" >}}
 
-You'll see a modal pop up. There's a warning about pricing at the bottom, so make sure you review this and decide whether the additional cost makes sense for your use case. To mitigate costs, you could apply this feature only to sensitive accounts.
+You'll see a modal pop up. There's a warning about pricing at the bottom, so make sure you review this and decide whether the additional cost makes sense for your use case. To mitigate costs, you could apply this feature only to sensitive accounts for example.
 
 #### Enable Pre-Token Generation Trigger
 We also need to enable the Pre-Token Generation trigger, which allows us to modify the access token (instead of just the ID token):
@@ -313,7 +313,7 @@ Once you log in, you’ll receive both the access token and the ID token. Here�
 }
 ```
 Notice two important fields:
-- **cognito**: This confirms that the user belongs to the `Admins` group.
+- **cognito:groups**: This confirms that the user belongs to the `Admins` group.
 - **scope**: You’ll see that `Admins-72pe87ha1sm73vraqa6scq89pk` was added to the scope field by our Lambda function, which was triggered before the tokens were generated.
 
 #### Login with a not admin user
@@ -394,7 +394,7 @@ I won’t go into every technical detail, because I want to keep the pace quick,
 - How to configure the SAM template to allow Lambda functions to publish to IoT MQTT topics.
 - How to allow Lambda functions to retrieve images from S3 buckets.
 
-The full repository will be available, and the rest of the setup should be straightforward!
+The full repository is available, and the rest of the setup should be straightforward!
 ### Use cognito for authorization of the Api Calls
 
 ``` yaml
@@ -467,7 +467,7 @@ You can see that the function has permission to publish to `arn:aws:iot:eu-west-
 
 ### Build
 
-Just like in the Cognito section, navigate to the /api folder and run sam build -u to build the project.
+Just like in the Cognito section, navigate to the `/api` folder and run `sam build -u` to build the project.
 
 ``` shell
 rm -rf .aws-sam/
@@ -556,7 +556,7 @@ After deployment, head to the API Gateway service in your AWS Console. You shoul
 In this section, I will demonstrate how our API interacts with Cognito through two examples.
 
 ### Get profile image
-The first test is for the "Get Profile Image" endpoint. This endpoint allows any authenticated user to make a request, as we haven’t set any restrictions on it. If you recall, the API allows access with the three main scopes: `openId`, `email`, and `profile`.
+The first test is for the `Get Profile Image` endpoint. This endpoint allows any authenticated user to make a request, as we haven’t set any restrictions on it. If you recall, the API allows access with the three main scopes: `openId`, `email`, and `profile`.
 
 A quick explanation: in the Lambda function, I’m using the `sub` field from the access token to retrieve the image. The `sub` field is a unique identifier for each user in the Cognito pool. There are many ways to do this, but I chose this approach to demonstrate how the access token can be utilized within Lambda functions.
 

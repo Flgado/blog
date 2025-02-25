@@ -2,19 +2,36 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Techshepre</title>
-    <link>https://jfolgado.com/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Techshepre</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 21 Oct 2024 22:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 21 Feb 2025 22:31:07 +0100</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a Real-Time Sentiment Analysis Pipeline with AWS</title>
+      <link>http://localhost:1313/posts/sentimentalanalises/</link>
+      <pubDate>Fri, 21 Feb 2025 22:31:07 +0100</pubDate>
+      
+      <guid>http://localhost:1313/posts/sentimentalanalises/</guid>
+      
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/post_2/test.drawio.svg&#34;
+    alt=&#34;Required User Permissions&#34;&gt;
+&lt;/figure&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;Welcome back to my AWS journey! In this blog, I’ll be diving into a real-time sentiment analysis pipeline built with AWS. As I continue working towards my AWS Developer Associate certification, I’m excited to share what I’ve learned so far.&lt;/p&gt;
+&lt;p&gt;I’ll guide you through how to use AWS services like Lambda, Comprehend, Firehose, and QuickSight to transform raw data into actionable insights in real-time. Plus, I’ll be deploying everything using AWS SAM (Serverless Application Model), so you can see just how easy it is to build and manage serverless applications.&lt;/p&gt;</description>
+      
+    </item>
+    
     <item>
       <title>Deploying a Secure API Using AWS SAM and Cognito Made Easy</title>
-      <link>https://jfolgado.com/posts/serverlessapiwithauth/</link>
+      <link>http://localhost:1313/posts/serverlessapiwithauth/</link>
       <pubDate>Mon, 21 Oct 2024 22:31:07 +0100</pubDate>
       
-      <guid>https://jfolgado.com/posts/serverlessapiwithauth/</guid>
+      <guid>http://localhost:1313/posts/serverlessapiwithauth/</guid>
       
-      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/post_1/graphic.jpeg&#34;&gt;
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/post_1/graphic.jpeg&#34;&gt;
 &lt;/figure&gt;
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -25,16 +42,16 @@
     
     <item>
       <title>About me</title>
-      <link>https://jfolgado.com/about/</link>
+      <link>http://localhost:1313/about/</link>
       <pubDate>Sat, 19 Oct 2024 15:00:00 +0000</pubDate>
       
-      <guid>https://jfolgado.com/about/</guid>
+      <guid>http://localhost:1313/about/</guid>
       
-      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/about-me.jpeg&#34;
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/about-me.jpeg&#34;
     alt=&#34;Cognito Build&#34;&gt;
 &lt;/figure&gt;
 
-&lt;p&gt;João Folgado (he/him) is a 30-year-old computer engineer from Portugal, currently living in Castelo Branco. Is a computer engineer currently working on AWS infrastructure, authentication services, and backend development with Go (Golang). With a strong background in distributed systems, he is passionate about building scalable, efficient solutions that serve the needs of modern platforms.&lt;/p&gt;
+&lt;p&gt;João Folgado is a 30-year-old computer engineer from Portugal, currently living in Castelo Branco. Is a computer engineer currently working on AWS infrastructure, authentication services, and backend development with Go (Golang). With a strong background in distributed systems, he is passionate about building scalable, efficient solutions that serve the needs of modern platforms.&lt;/p&gt;
 &lt;p&gt;In addition to his professional work, João is pursuing a Master’s degree in Cybersecurity, where his current focus is on eBPF and security observability. This cutting-edge area of research aligns with his future ambitions to specialize in cybersecurity, a field he is deeply passionate about and aims to shape with his contributions.&lt;/p&gt;</description>
       
     </item>

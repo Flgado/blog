@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Building a Real-Time Sentiment Analysis Pipeline with AWS | Techshepre</title>
+<meta property="og:title" content="Building a Real-Time Sentiment Analysis Pipeline with AWS | Techshepre" />
+<meta name="twitter:title" content="Building a Real-Time Sentiment Analysis Pipeline with AWS | Techshepre" />
+<meta itemprop="name" content="Building a Real-Time Sentiment Analysis Pipeline with AWS | Techshepre" />
+<meta name="application-name" content="Building a Real-Time Sentiment Analysis Pipeline with AWS | Techshepre" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="">
+<meta itemprop="description" content="" />
+<meta property="og:description" content="" />
+<meta name="twitter:description" content="" />
+
+<meta property="og:locale" content="en-us" />
+<meta name="language" content="en-us" />
+
+  <link rel="alternate" hreflang="en" href="http://localhost:1313/posts/sentimentalanalises/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2025-02-21T22:31:07&#43;0100 />
+    <meta property="article:published_time" content=2025-02-21T22:31:07&#43;0100 />
+    <meta property="og:url" content="http://localhost:1313/posts/sentimentalanalises/" />
+
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Building a Real-Time Sentiment Analysis Pipeline with AWS",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2025-02-21",
+        "description": "",
+        "wordCount":  3289 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2025-02-21",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "Techshepre"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.134.1">
+
+    
+    <meta property="og:url" content="http://localhost:1313/posts/sentimentalanalises/">
+  <meta property="og:site_name" content="Techshepre">
+  <meta property="og:title" content="Building a Real-Time Sentiment Analysis Pipeline with AWS">
+  <meta property="og:description" content=" Introduction Welcome back to my AWS journey! In this blog, I’ll be diving into a real-time sentiment analysis pipeline built with AWS. As I continue working towards my AWS Developer Associate certification, I’m excited to share what I’ve learned so far.
+I’ll guide you through how to use AWS services like Lambda, Comprehend, Firehose, and QuickSight to transform raw data into actionable insights in real-time. Plus, I’ll be deploying everything using AWS SAM (Serverless Application Model), so you can see just how easy it is to build and manage serverless applications.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-02-21T22:31:07+01:00">
+    <meta property="article:modified_time" content="2025-02-21T22:31:07+01:00">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building a Real-Time Sentiment Analysis Pipeline with AWS">
+  <meta name="twitter:description" content=" Introduction Welcome back to my AWS journey! In this blog, I’ll be diving into a real-time sentiment analysis pipeline built with AWS. As I continue working towards my AWS Developer Associate certification, I’m excited to share what I’ve learned so far.
+I’ll guide you through how to use AWS services like Lambda, Comprehend, Firehose, and QuickSight to transform raw data into actionable insights in real-time. Plus, I’ll be deploying everything using AWS SAM (Serverless Application Model), so you can see just how easy it is to build and manage serverless applications.">
+
+
+    
+
+    <link rel="canonical" href="http://localhost:1313/posts/sentimentalanalises/">
+    <link href="/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
+    <link href="/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+
+<link rel="manifest" href="http://localhost:1313/site.webmanifest">
+
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+
+    </head>
+<body data-theme = "" class="notransition">
+
+<script src="/js/theme.js"></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="http://localhost:1313/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/">
+                        Home
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/about/">
+                        Bio
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Building a Real-Time Sentiment Analysis Pipeline with AWS</h1>
+                
+                
+                <div class="post-meta">
+                    <time datetime="2025-02-21T22:31:07&#43;01:00" itemprop="datePublished"> Feb 21, 2025 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <figure class="center"><img src="/images/post_2/test.drawio.svg"
+    alt="Required User Permissions">
+</figure>
+
+<h1 id="introduction">Introduction</h1>
+<p>Welcome back to my AWS journey! In this blog, I’ll be diving into a real-time sentiment analysis pipeline built with AWS. As I continue working towards my AWS Developer Associate certification, I’m excited to share what I’ve learned so far.</p>
+<p>I’ll guide you through how to use AWS services like Lambda, Comprehend, Firehose, and QuickSight to transform raw data into actionable insights in real-time. Plus, I’ll be deploying everything using AWS SAM (Serverless Application Model), so you can see just how easy it is to build and manage serverless applications.</p>
+<p>Whether you&rsquo;re looking to enhance user experience, track social media sentiment, or simply explore the world of serverless, this blog will show you how to create a scalable and efficient sentiment analysis pipeline from scratch. 🚀</p>
+<p>All code can be find <a href="https://github.com/Flgado/SAM-AWSComprehend-Pipeline">here</a></p>
+<h1 id="prerequisites">Prerequisites</h1>
+<p>Before we dive into the tutorial, make sure you have an AWS account and have installed AWS Amplify and SAM (Serverless Application Model) on your local machine. The setup is fairly simple, but just in case you need assistance, here are one helpful link:</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html">Install SAM</a></li>
+</ul>
+<p>To use SAM for deploying this services, your sam client need to need at least this policies:</p>
+<figure class="center"><img src="/images/post_2/sam_permissions.png"
+    alt="Required User Permissions">
+</figure>
+
+<p>Once you have everything set up, you&rsquo;re ready to follow along!</p>
+<h1 id="aws-comprehend">AWS Comprehend</h1>
+<p>AWS offers a wide range of AI services, including Amazon Rekognition, Amazon Bedrock, Amazon Lex, and Amazon Comprehend, among others. In this section, I’ll focus on Amazon Comprehend, specifically the real-time analysis feature used in this project—not going into every feature it offers.</p>
+<p>Here’s a brief overview of the key services provided by Amazon Comprehend:</p>
+<figure class="center"><img src="/images/post_2/comprehend_services.png"
+    alt="Amazon Comprehend Services">
+</figure>
+
+<ul>
+<li>
+<p><strong>Analyze Jobs</strong>: This feature allows you to analyze documents stored in Amazon S3 for various insights, such as entities (events, phrases), language detection, sentiment analysis, targeted sentiment, and personally identifiable information (PII).</p>
+</li>
+<li>
+<p><strong>Custom Classification:</strong> Classify documents using categories that you create based on your specific needs.</p>
+</li>
+<li>
+<p><strong>Custom Entity Recognition</strong>: Train a custom model to identify specific entities in text, like names, dates, or locations. You’ll need sample documents and a list of entity annotations for training. Once trained, this model can be used to recognize these custom entities in real-time or at scale via batch processing.</p>
+</li>
+<li>
+<p><strong>Flywheel</strong>: This resource helps automate the continuous training of models for custom classification and entity recognition, keeping your models up-to-date.</p>
+</li>
+<li>
+<p><strong>Endpoints</strong>: Create and manage custom endpoints for real-time classification or entity detection. These endpoints allow you to apply your custom models in real-time, making them available for direct integration into applications.</p>
+</li>
+</ul>
+<p>And also real-time analise that I will delve more in the next section</p>
+<h2 id="real-time-analise">Real-Time Analise</h2>
+<p>Imagine a global retail chain that collects customer feedback through online surveys, product reviews, and social media comments. With thousands of feedback submissions coming in daily, manually analyzing and extracting meaningful insights is nearly impossible. By leveraging AWS Comprehend, the company can automatically analyze the text data in real-time. Let’s walk through some examples below.</p>
+<p>Here’s the text we’re analyzing:</p>
+<p><code>Yesterday I visited the Edinburgh city center gym, and it was an awesome experience. The lockers were very spacious, which is nice, and the bathroom was clean. The gym had a lot of cool machines, and I had plenty of space to do my exercises. I also tried the pool, which had a lovely view, but the water was a bit cold. The only thing I didn’t like was that there were no gluten-free snacks, and the water fountain was empty. Overall, it was a good experience.</code></p>
+<ul>
+<li><strong>Entities</strong>:</li>
+</ul>
+<figure class="center"><img src="/images/post_2/entities.png"
+    alt="Entity Detection">
+</figure>
+
+<p>In this case, AWS Comprehend detects entities in the text, such as the gym name, product types, or locations. For example, identifying mentions of product managers or customer service representatives could help link specific feedback to the right team members. This makes it easier to address customer concerns promptly.</p>
+<ul>
+<li><strong>Key Phrases:</strong></li>
+</ul>
+<figure class="center"><img src="/images/post_2/key_phrases.png"
+    alt="Key Phrases Detection">
+</figure>
+
+<p>Key phrases are terms or groups of words that represent the main themes or concepts in a text. By extracting key phrases, AWS Comprehend allows you to quickly understand the subject matter without reading everything in detail. In customer reviews, key phrases might include terms like &ldquo;fast delivery,&rdquo; &ldquo;poor quality,&rdquo; or &ldquo;easy-to-use.&rdquo;</p>
+<p>For example, if you&rsquo;re managing an e-commerce platform that sells electronics, AWS Comprehend can identify key phrases like:</p>
+<ul>
+<li>&ldquo;battery life&rdquo;</li>
+<li>&ldquo;screen resolution&rdquo;</li>
+<li>&ldquo;customer service&rdquo;</li>
+</ul>
+<p>From these insights, you might discover:</p>
+<ul>
+<li>If &ldquo;battery life&rdquo; is mentioned often, it could either highlight a major strength or an ongoing concern.</li>
+<li>If &ldquo;screen resolution&rdquo; is frequently discussed, you could determine whether customers are satisfied or if there’s room for improvement.</li>
+<li>Frequent mentions of &ldquo;customer service&rdquo; may signal areas to improve in your support team’s training.</li>
+</ul>
+<p>These insights can help you prioritize product improvements, improve customer service, or tailor marketing strategies based on feedback.</p>
+<ul>
+<li><strong>Language</strong>:</li>
+</ul>
+<p>AWS Comprehend can detect the language of the text, enabling you to route the data to appropriate translation tools if necessary (e.g., translating into English for further analysis).</p>
+<ul>
+<li><strong>PII (Personally Identifiable Information)</strong>:</li>
+</ul>
+<p>Many industries face strict data privacy regulations that require them to protect sensitive information. These regulations include:</p>
+<ul>
+<li>GDPR (General Data Protection Regulation) in Europe</li>
+<li>CCPA (California Consumer Privacy Act) in California</li>
+<li>HIPAA (Health Insurance Portability and Accountability Act) in U.S. healthcare</li>
+</ul>
+<p>AWS Comprehend’s PII detection helps companies identify and redact sensitive personal information in customer-facing content, ensuring they comply with privacy laws. For example, a financial institution might scan emails or chat logs for sensitive data like bank account numbers or Social Security numbers, removing this information before storing it for analytics.</p>
+<p><strong>Sentiment Analysis</strong>:</p>
+<figure class="center"><img src="/images/post_2/sentimental.png"
+    alt="Sentiment Analysis">
+</figure>
+
+<p>The sentiment analysis on this comment shows a mixed sentiment. This feature provides an overall sentiment for the text—whether it’s positive, negative, or neutral.</p>
+<p><strong>Targeted Sentiment</strong>:</p>
+<figure class="center"><img src="/images/post_2/target_sentimental.png"
+    alt="Targeted Sentiment Analysis">
+</figure>
+
+<p>Targeted sentiment analysis goes beyond providing an overall sentiment and focuses on specific entities within the text. In our example, the analysis breaks down which aspects of the gym experience (e.g., the pool, lockers, gluten-free snacks) are viewed positively or negatively.</p>
+<p>This feature is particularly useful for identifying specific issues or opportunities linked to different aspects of a product or service. For instance, a gym could use it to understand that their pool area is well-received, while the lack of gluten-free snacks could be seen as a negative.</p>
+<p>When combined with other features like key phrase extraction, targeted sentiment analysis gives businesses a deeper, more actionable understanding of customer feedback. This is the feature I’m using in this blog. I won’t go into too much detail about correlating data, as the focus here is more on the integrations and how to implement them with AWS.</p>
+<h2 id="how-companies-use-aws-comprehend">How companies use AWS Comprehend</h2>
+<p>This section is for the curious people! 😃 Here are some links where you can see how big companies use AWS Comprehend for sentiment analysis:</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=la2dHBYJPoI&amp;t=908s">MacDonals</a></li>
+<li><a href="https://www.vibetecnologia.com/post/amazon-comprehend">Vibe</a></li>
+<li><a href="https://aws.amazon.com/solutions/case-studies/schuh-case-study/">Schuh</a></li>
+<li><a href="https://aws.amazon.com/pt/comprehend/customers/">others</a></li>
+</ul>
+<h1 id="sam-serverless-application-model">SAM (Serverless Application Model)</h1>
+<h2 id="api">API</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span> <span style="color:#f92672">Api</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">TracingEnable</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::Serverless::Api</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">StageName</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Auth</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Authorizers</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">CognitoAuthorizer</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">CognitoAuthorizer</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">AuthorizationScopes</span>:
+</span></span><span style="display:flex;"><span>              - <span style="color:#ae81ff">email</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#ae81ff">openid</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#ae81ff">profile</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">UserPoolArn</span>: !<span style="color:#ae81ff">Sub arn:aws:cognito-idp:${Region}:${AccountId}:userpool/${Region}${UserPool}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">DefaultAuthorizer</span>: <span style="color:#ae81ff">CognitoAuthorizer</span>
+</span></span></code></pre></div><p>This configuration will deploy a new API with a Cognito-based authorization setup. By default, access to the API endpoints will be restricted to authenticated users who have a valid JWT token issued by the Cognito User Pool specified above.</p>
+<p>To better understand how authentication and authorization work with Cognito, feel free to check out my <a href="https://jfolgado.com/posts/serverlessapiwithauth/">previous post</a>, where I go into detail on how Cognito operates.</p>
+<h2 id="lambda-function-invoke-by-api-call">Lambda function invoke by api call</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span> <span style="color:#f92672">ProcessCommentAnalysis</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::Serverless::Function</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">BuildMethod</span>: <span style="color:#ae81ff">makefile</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">BuildTarget</span>: <span style="color:#ae81ff">build-ProcessCommentAnalysis</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">CodeUri</span>: <span style="color:#ae81ff">.</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Handler</span>: <span style="color:#ae81ff">bootstrap</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Runtime</span>: <span style="color:#ae81ff">provided.al2</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Architectures</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">x86_64</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Events</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">AnalyzeComments</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">Api</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Method</span>: <span style="color:#ae81ff">POST</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Path</span>: <span style="color:#ae81ff">/analyze-comments</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">RestApiId</span>: !<span style="color:#ae81ff">Ref Api</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Policies</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">Statement</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">comprehend:DetectTargetedSentiment</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Resource</span>: <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">cloudwatch:*</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">logs:*</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">firehose:PutRecord</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">firehose:PutRecordBatch</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Resource</span>:
+</span></span><span style="display:flex;"><span>                - !<span style="color:#ae81ff">GetAtt Firehose.Arn</span>
+</span></span></code></pre></div><p>This configuration sets up a Lambda function that will be triggered whenever the <code>/analyze-comments</code> endpoint is called. The function is straightforward: it takes the request payload, invokes AWS Comprehend, and sends the response directly to Firehose. You can see the implementation under <code>lamba/ProcessCommentAnalysis</code></p>
+<p>To ensure the Lambda function has the necessary permissions, the policies above include <code>comprehend:DetectTargetedSentiment</code> and <code>firehose:PutRecord</code>. These are required for the function to interact with Comprehend and Firehose respectively.</p>
+<h2 id="firehose-streaming-comments-analysis-to-s3-">Firehose: Streaming Comments Analysis to S3 🚀</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#75715e">########## KINESIS DATA FIREHOSE ###########</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">Firehose</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::KinesisFirehose::DeliveryStream</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">DependsOn</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ae81ff">DeliveryStreamPolicy</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">DeliveryStreamType</span>: <span style="color:#ae81ff">DirectPut</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">DeliveryStreamName</span>: <span style="color:#e6db74">&#34;kdf-firehose-78872folgado&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">ExtendedS3DestinationConfiguration</span>: <span style="color:#75715e"># where data is delivery</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">BucketARN</span>: !<span style="color:#ae81ff">GetAtt DeliveryBucket.Arn</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">RoleARN</span>: !<span style="color:#ae81ff">GetAtt DeliveryStreamRole.Arn</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">ProcessingConfiguration</span>: <span style="color:#75715e"># will do transformations on the data</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Processors</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">Lambda</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Parameters</span>:
+</span></span><span style="display:flex;"><span>                - <span style="color:#f92672">ParameterName</span>: <span style="color:#ae81ff">LambdaArn</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">ParameterValue</span>: !<span style="color:#ae81ff">GetAtt TransformationFunction.Arn</span> <span style="color:#75715e"># the lambda function that will process the data</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">BufferingHints</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">IntervalInSeconds</span>: <span style="color:#ae81ff">60</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">SizeInMBs</span>: <span style="color:#ae81ff">1</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">CloudWatchLoggingOptions</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">LogGroupName</span>: <span style="color:#e6db74">&#34;/aws/kinesisfirehose/ibcd&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">LogStreamName</span>: <span style="color:#e6db74">&#34;S3Delivery&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">EncryptionConfiguration</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">NoEncryptionConfig</span>: <span style="color:#e6db74">&#34;NoEncryption&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Prefix</span>: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span></code></pre></div><p>Now, let&rsquo;s talk about Amazon Kinesis Data Firehose, our real-time data delivery pipeline. Is it overkill for this gym review use case? Absolutely. Could we just have our Lambda write directly to S3? For sure. But hey, this is about learning serverless integrations, so let&rsquo;s roll with it! 😆</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>After our Lambda function (ProcessCommentAnalysis) extracts sentiment insights using AWS Comprehend, it sends the results straight into Firehose. Here’s what happens next:</p>
+<ul>
+<li>Firehose buffers incoming data until it either reaches 1MB or 60 seconds have passed—whichever comes first.</li>
+<li>At that point, Firehose calls our transformation Lambda (TransformationFunction), applying the transformation to all accumulated records at once (not individually!).</li>
+<li>The transformed data is then stored in S3, ready for visualization in Amazon QuickSight or further analysis.</li>
+</ul>
+<h3 id="firehose-configuration">Firehose Configuration</h3>
+<p>Firehose is set up as a DirectPut stream, meaning Lambda sends records directly. Here are its key components:</p>
+<ul>
+<li><strong>ExtendedS3DestinationConfiguration</strong> → Saves transformed data in S3.</li>
+<li><strong>ProcessingConfiguration</strong> → Calls a Lambda function to format the data before storage.</li>
+<li><strong>BufferingHints</strong> → Ensures records are processed in batches (1MB or 60s intervals).</li>
+<li><strong>CloudWatchLoggingOptions</strong> → Logs Firehose activity for debugging (because things will go wrong).</li>
+</ul>
+<h3 id="when-firehose-makes-sense-">When Firehose Makes Sense 🏆</h3>
+<p>WWhile Firehose might be overkill for our gym reviews, it shines in high-throughput, real-time streaming scenarios like:</p>
+<ul>
+<li>
+<p><strong>Clickstream analytics</strong>: Processing user interactions from websites or apps.</p>
+</li>
+<li>
+<p><strong>IoT data pipelines</strong>: Handling sensor data from connected devices.</p>
+</li>
+<li>
+<p><strong>Log aggregation</strong>: Streaming logs from multiple sources into a centralized store.</p>
+</li>
+<li>
+<p><strong>Security event monitoring</strong>: Forwarding security logs to SIEM tools for analysis.</p>
+</li>
+</ul>
+<p>So while this setup may be excessive now, it&rsquo;s a great hands-on way to understand event-driven architectures. And who knows? Maybe one day your gym reviews will go viral, and you’ll be glad you built for scale! 💪🔥</p>
+<h3 id="things-you-really-need-to-know-about-kinesis-firehose-">Things You Really Need to Know About Kinesis Firehose 🚀</h3>
+<h4 id="transformation-error-handling">Transformation error handling</h4>
+<p>Taking a closer look at our transformation Lambda function, you&rsquo;ll notice that it returns specific status codes based on the outcome:</p>
+<ul>
+<li>
+<p><strong>KinesisFirehoseTransformedStateOk</strong> → The record was processed successfully.</p>
+</li>
+<li>
+<p><strong>KinesisFirehoseTransformedStateDropped</strong> → The record was dropped due to an error.</p>
+</li>
+<li>
+<p><strong>KinesisFirehoseTransformedStateProcessingFailed</strong> → The record failed processing.</p>
+</li>
+</ul>
+<p>When a record is marked as ProcessingFailed, Firehose treats it as unsuccessfully processed. These records are automatically sent to an S3 bucket under the processing-failed folder.</p>
+<p>To illustrate this, I intentionally caused some records to fail. As seen in the image below, Firehose created a processing-failed folder:
+<figure class="center"><img src="/images/post_2/failed_folder.png"
+    alt="Targeted Sentiment Analysis">
+</figure>
+</p>
+<p>Examining the folder contents, we find objects containing the following structure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{<span style="color:#f92672">&#34;rawData&#34;</span>:<span style="color:#e6db74">&#34;=&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;errorCode&#34;</span>:<span style="color:#e6db74">&#34;Lambda.InvokeAccessDenied&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;errorMessage&#34;</span>:<span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;attemptsMade&#34;</span>:,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;arrivalTimestamp&#34;</span>:<span style="color:#ae81ff">1740222324567</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;attemptEndingTimestamp&#34;</span>:<span style="color:#ae81ff">1740222399984</span>,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;lambdaARN&#34;</span>:<span style="color:#e6db74">&#34;&#34;</span>}
+</span></span></code></pre></div><p>This JSON provides key debugging details:</p>
+<ul>
+<li>
+<p><strong>Error Code</strong>: The specific failure reason.</p>
+</li>
+<li>
+<p><strong>Attempts Made</strong>: How many times Firehose retried the function.</p>
+</li>
+<li>
+<p><strong>Arrival &amp; Attempt Timestamps</strong>: When the record was received and when the final processing attempt occurred.</p>
+</li>
+<li>
+<p><strong>Raw Data</strong>: The original input (Base64 encoded) that the transformation Lambda received.</p>
+</li>
+</ul>
+<h4 id="why-this-matters">Why This Matters</h4>
+<p>Understanding Firehose&rsquo;s error-handling behavior ensures that failed records are not silently lost. By storing unsuccessful records in a dedicated S3 folder, we can diagnose issues, fix bugs, and reprocess records if needed (of course we could use other ways to do it)</p>
+<p>By leveraging Firehose in this way, we not only streamline data processing but also gain a robust mechanism for tracking and resolving errors. 🚀</p>
+<h4 id="be-mindful-of-lambda-timeouts-">Be Mindful of Lambda Timeouts ⏳</h4>
+<p>Setting the right timeout for your transformation Lambda is critical. Remember:</p>
+<ul>
+<li>
+<p>Firehose invokes the function for every incoming record, meaning the processing time can vary significantly depending on the data volume.</p>
+</li>
+<li>
+<p>If your stream is small, the Lambda will execute quickly. But with large streams, processing can take much longer.</p>
+</li>
+<li>
+<p>AWS Lambda has a hard limit of 15 minutes per execution, so keep that in mind when designing complex</p>
+</li>
+</ul>
+<p>To strike the right balance, benchmark your Lambda’s execution time under different workloads and adjust the timeout accordingly.</p>
+<h4 id="decide-buffering-hints-wisely-">Decide Buffering Hints Wisely 💡</h4>
+<p>Firehose buffers data before delivery using BufferingHints, which define:</p>
+<ul>
+<li>
+<p><strong>SizeInMBs</strong>: The amount of data Firehose collects before sending it.</p>
+</li>
+<li>
+<p><strong>IntervalInSeconds</strong>: The maximum time Firehose waits before delivering the buffer, even if it&rsquo;s not full.</p>
+</li>
+</ul>
+<p>In my case, I configured Firehose with a <code>1MB buffer</code> and an interval of <code>60 seconds</code>. Now, imagine that my average data payload is only <code>500KB per interval</code>—I&rsquo;m always underutilizing the buffer. Since Firehose <code>charges based on the total ingested data</code>, not actual usage, I’m effectively paying for unused space! 😬</p>
+<p><strong>How to Optimize Buffering Hints</strong></p>
+<p>1- <strong>Analyze Your Data Throughput</strong>: If your data flow is consistently below the buffer size, consider lowering SizeInMBs to minimize wasted space.</p>
+<p>2- <strong>Adjust the Buffer Interval</strong>: If you need faster data delivery, reduce IntervalInSeconds to push smaller batches more frequently.</p>
+<p>3- <strong>Match Buffering to Downstream Processing Needs</strong>: If your target system (S3, Redshift, etc.) prefers larger, less frequent writes, a higher buffer size is ideal. If real-time insights matter more, a lower buffer size with a shorter interval works best.</p>
+<p>💰 <strong>Cost-saving tip</strong>: If your data trickles in slowly, Firehose will still wait until <code>IntervalInSeconds</code> is reached before delivering. If you&rsquo;re consistently underutilizing the buffer, consider alternative approaches like <code>Kinesis Data Streams + Lambda</code>, which provide more fine-tuned control.
+More about the pricing <a href="https://aws.amazon.com/firehose/pricing/">here</a>
+Happy streaming! 🚀</p>
+<h2 id="policies-the-necessary-evil-">Policies: The Necessary Evil 🛑😂</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">DeliveryStreamPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::IAM::Policy</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">Roles</span>:
+</span></span><span style="display:flex;"><span>        - !<span style="color:#ae81ff">Ref DeliveryStreamRole</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">PolicyName</span>: <span style="color:#ae81ff">firehose_delivery_policy</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">PolicyDocument</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Version</span>: <span style="color:#e6db74">2012-10-17</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Statement</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:AbortMultipartUpload&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:GetBucketLocation&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:GetObject&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:ListBucket&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:ListBucketMultipartUploads&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;s3:PutObject&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Resource</span>:
+</span></span><span style="display:flex;"><span>              - !<span style="color:#ae81ff">GetAtt DeliveryBucket.Arn</span>
+</span></span><span style="display:flex;"><span>              - !<span style="color:#ae81ff">Join</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>                - - <span style="color:#e6db74">&#39;arn:aws:s3:::&#39;</span>
+</span></span><span style="display:flex;"><span>                  - !<span style="color:#ae81ff">Ref DeliveryBucket</span>
+</span></span><span style="display:flex;"><span>                  - <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;lambda:InvokeFunction&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Resource</span>:
+</span></span><span style="display:flex;"><span>              - !<span style="color:#ae81ff">GetAtt TransformationFunction.Arn</span>
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Action</span>:
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;cloudwatch:*&#39;</span>
+</span></span><span style="display:flex;"><span>              - <span style="color:#e6db74">&#39;logs:*&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Resource</span>: <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">DeliveryStreamRole</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Type</span>: <span style="color:#ae81ff">AWS::IAM::Role</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">AssumeRolePolicyDocument</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Version</span>: <span style="color:#e6db74">2012-10-17</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Statement</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">Sid</span>: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Effect</span>: <span style="color:#ae81ff">Allow</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Principal</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">Service</span>: <span style="color:#ae81ff">firehose.amazonaws.com</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Action</span>: <span style="color:#e6db74">&#39;sts:AssumeRole&#39;</span>
+</span></span></code></pre></div><h3 id="what-these-policies-actually-do-">What These Policies Actually Do 🔍</h3>
+<p>1️⃣ <strong>Firehose Needs Permission to Write to S3</strong> → This part of the policy makes sure Firehose can put, list, and manage objects in your S3 bucket. Without it, Firehose would be standing at the S3 door knocking with no key. 🚪🔑</p>
+<p>2️⃣ <strong>Firehose Needs to Call Lambda</strong> → Since we’re using a transformation Lambda, Firehose needs permission to invoke it. Otherwise, your data will stay in its raw, unprocessed state, like an unblended protein shake. 🥤</p>
+<p>3️⃣ <strong>CloudWatch Logging</strong>→ This allows Firehose to log events to CloudWatch, so when something inevitably breaks, you have clues about why. Think of it as security cameras for your data pipeline. 📹</p>
+<p>4️⃣ <strong>The Firehose Role</strong> → AWS needs to know that Firehose is actually allowed to do all of the above. This role gives it the authority to act on your behalf. It’s like giving Firehose an official employee badge. 🏷️</p>
+<h2 id="data-visualization-with-quicksight-">Data Visualization with QuickSight 🎨📊</h2>
+<p>Now that we have our transformed data in S3, it&rsquo;s time to bring it to life with Amazon QuickSight!</p>
+<p>We’re not going to dive deep into QuickSight’s full capabilities here (because let’s be real, this project is all about streaming data, not BI deep-dives). But trust me, QuickSight is powerful—the NFL even uses it for real-time analytics! 🏈📊</p>
+<p>With QuickSight, you can:</p>
+<ul>
+<li>
+<p>Build interactive dashboards 📊</p>
+</li>
+<li>
+<p>Use machine learning insights (yes, AI-powered analytics!) 🤖</p>
+</li>
+<li>
+<p>Share visualizations across teams 👥</p>
+</li>
+<li>
+<p>Integrate seamlessly with S3, Redshift, and more 🚀</p>
+</li>
+</ul>
+<p>For our project, we’ll simply use it to visualize the processed gym reviews. That’s it. No fancy ML, no predictive insights—just a clean, clear way to see our data in action. If you’re interested in exploring QuickSight further, go for it! But for now, let’s keep things simple. 😉</p>
+<h3 id="quicksight-setup">QuickSight Setup</h3>
+<p>It wa really simple to setup. The data was transformen in NDJSON(we will see how after):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span></code></pre></div><p>This structure is QuickSight-friendly, so all you need to do is create a manifest file (already in the repo):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;fileLocations&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;URIPrefixes&#34;</span>: [
+</span></span><span style="display:flex;"><span>          <span style="color:#e6db74">&#34;s3://deliverybucket-hid9918y2analisesfolgado/2025/02/&#34;</span>
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;globalUploadSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;format&#34;</span>: <span style="color:#e6db74">&#34;JSON&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;delimiter&#34;</span>: <span style="color:#e6db74">&#34;,&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;textqualifier&#34;</span>: <span style="color:#e6db74">&#34;\&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;containsHeader&#34;</span>: <span style="color:#e6db74">&#34;false&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  
+</span></span></code></pre></div><p>Then, go to Datasets:</p>
+<figure class="center"><img src="/images/post_2/datasets.png"
+    alt="Datasets Page">
+</figure>
+
+<p>Select New Dataset → S3, then upload your manifest.json file:</p>
+<figure class="center"><img src="/images/post_2/select_manifest.png"
+    alt="Select Manifest File">
+</figure>
+
+<p>And voilà! 🚀 Your data is ready for visualization:</p>
+<figure class="center"><img src="/images/post_2/graphs.png"
+    alt="QuickSight Graphs">
+</figure>
+
+<h2 id="lets-dive-into-what-it-was-built-step-by-step">Let&rsquo;s Dive Into What It Was Built Step by Step</h2>
+<p>In the sections above I explain more what SAM configuration means and how can we setup quickSight, in this section I will demostrate what was created with the SAM file.</p>
+<h3 id="api-call">Api Call</h3>
+<p>To demonstrate how Firehose buffers data, I made two different API calls:</p>
+<p>First Call:
+<figure class="center"><img src="/images/post_2/first_request.png"
+    alt="API Call 1">
+</figure>
+</p>
+<p>Second Call:
+<figure class="center"><img src="/images/post_2/second_request.png"
+    alt="API Call 2">
+</figure>
+</p>
+<p>These calls return responses from AWS Comprehend. The response contains a lot of information, but let’s simplify it. Suppose the comment was:</p>
+<p><code>The changing rooms are always dirty.</code></p>
+<p>The response would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#960050;background-color:#1e0010">Entities:</span> <span style="color:#960050;background-color:#1e0010">[</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#960050;background-color:#1e0010">DescriptiveMentionIndex:</span> <span style="color:#960050;background-color:#1e0010">[</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#960050;background-color:#1e0010">0</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">],</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#960050;background-color:#1e0010">Mentions:</span> <span style="color:#960050;background-color:#1e0010">[</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#960050;background-color:#1e0010">{</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">BeginOffset:</span> <span style="color:#960050;background-color:#1e0010">4,</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">EndOffset:</span> <span style="color:#960050;background-color:#1e0010">18,</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">GroupScore:</span> <span style="color:#960050;background-color:#1e0010">1,</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">MentionSentiment:</span> <span style="color:#960050;background-color:#1e0010">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">Sentiment:</span> <span style="color:#f92672">&#34;NEGATIVE&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">SentimentScore:</span> <span style="color:#960050;background-color:#1e0010">{</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#960050;background-color:#1e0010">Mixed:</span> <span style="color:#960050;background-color:#1e0010">0.00015799999528098851,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#960050;background-color:#1e0010">Negative:</span> <span style="color:#960050;background-color:#1e0010">0.9983959794044495,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#960050;background-color:#1e0010">Neutral:</span> <span style="color:#960050;background-color:#1e0010">0.00010199999815085903,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#960050;background-color:#1e0010">Positive:</span> <span style="color:#960050;background-color:#1e0010">0.0013429999817162752</span>
+</span></span><span style="display:flex;"><span>                        }
+</span></span><span style="display:flex;"><span>                    <span style="color:#960050;background-color:#1e0010">},</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">Score:</span> <span style="color:#ae81ff">0.999845027923584</span><span style="color:#960050;background-color:#1e0010">,</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">Text:</span> <span style="color:#e6db74">&#34;changing rooms&#34;</span><span style="color:#960050;background-color:#1e0010">,</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#960050;background-color:#1e0010">Type:</span> <span style="color:#e6db74">&#34;FACILITY&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#960050;background-color:#1e0010">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">]</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">}</span>
+</span></span></code></pre></div><h3 id="whats-happening-under-the-hood-">What’s Happening Under the Hood? 🔥</h3>
+<h4 id="firehose-monitoring">Firehose Monitoring</h4>
+<figure class="center"><img src="/images/post_2/firehose_1.png"
+    alt="Firehose Monitoring 1">
+</figure>
+
+<figure class="center"><img src="/images/post_2/firehose_2.png"
+    alt="Firehose Monitoring 2">
+</figure>
+
+<p>From these charts, we can see:</p>
+<ul>
+<li>
+<p>The first image shows a huge difference in incoming bytes. That’s because Firehose buffers 1MB before sending data, but my test calls were just a few KB. Oops. 😆</p>
+</li>
+<li>
+<p>The second image provides details about the Lambda transformation function: execution time, success/failure rates, and processed records.</p>
+</li>
+</ul>
+<h4 id="firehose-configuration-1">Firehose Configuration</h4>
+<figure class="center"><img src="/images/post_2/config_1.png"
+    alt="Firehose Config 1">
+</figure>
+
+<figure class="center"><img src="/images/post_2/config_2.png"
+    alt="Firehose Config 2">
+</figure>
+
+<figure class="center"><img src="/images/post_2/config_3.png"
+    alt="Firehose Config 3">
+</figure>
+
+<p>Here’s what we can see:</p>
+<ul>
+<li>
+<p><strong>First Image</strong> → The relationship between Firehose and the Lambda function that transforms our data.</p>
+</li>
+<li>
+<p><strong>Second Image</strong> → The S3 bucket where Firehose delivers processed data.</p>
+</li>
+<li>
+<p><strong>Third Image</strong> → The IAM policies created by AWS SAM for our Firehose.</p>
+</li>
+</ul>
+<h3 id="what-was-save-in-the-s3-buckets-after-this-3-calls-">What was save in the S3 Buckets after this 3 calls ?</h3>
+<figure class="center"><img src="/images/post_2/s3_bucket.png"
+    alt="Firehose Config 1">
+</figure>
+
+<p>FireHose save the data from the two request on the s3bucket above like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;Yesterday&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;DATE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;i&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;i&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;my&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;I&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;i&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;Edimburg&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;LOCATION&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;city centre&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;LOCATION&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;experience&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;ATTRIBUTE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;lockers&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;bathroom&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;lot&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;QUANTITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;machines&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;OTHER&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;pool&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;view&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;ATTRIBUTE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;POSITIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;water&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;OTHER&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;water&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;OTHER&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;snacks&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;OTHER&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;font&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;I&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;I&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;I&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;my&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;PERSON&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;gym&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;FACILITY&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEGATIVE&#34;</span>}
+</span></span><span style="display:flex;"><span>{<span style="color:#f92672">&#34;entity&#34;</span>:<span style="color:#e6db74">&#34;app&#34;</span>,<span style="color:#f92672">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;SOFTWARE&#34;</span>,<span style="color:#f92672">&#34;sentimental&#34;</span>:<span style="color:#e6db74">&#34;NEUTRAL&#34;</span>}
+</span></span></code></pre></div><p>In NJSON format, this is the art created by our transform function</p>
+<h3 id="quicksight-data-visualization-on-steroids-">QuickSight: Data Visualization on Steroids 📊</h3>
+<p>Now that our data is NDJSON format, it&rsquo;s super easy to create QuickSight dashboards. While our example is simple, you can go wild with possibilities: tracking sentiment trends, filtering by gym locations, analyzing user demographics—the sky’s the limit! 🚀</p>
+<figure class="center"><img src="/images/post_2/quickSight_last.png"
+    alt="QuickSight Dashboard">
+</figure>
+
+<p>Oh, and did you know you can embed these dashboards into other applications? Imagine pulling up gym sentiment insights right inside your gym’s app!</p>
+<figure class="center"><img src="/images/post_2/embeded.png"
+    alt="Embedded QuickSight">
+</figure>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>And that’s a wrap! With just a few AWS services, we built a fully serverless data pipeline that takes user feedback, extracts sentiment insights, stores structured data in S3, and visualizes it in QuickSight—all without managing servers.</p>
+<p>Thanks to AWS SAM, deploying everything was incredibly straightforward. Just a few commands and the entire stack—Firehose, Lambda, S3, IAM roles—was up and running. Infrastructure as Code (IaC) for the win! 🏆</p>
+<p>While this project was a POC, it highlights how businesses can leverage AWS Comprehend alongside other analytics tools to gain valuable insights from customer feedback. Many big companies already use similar solutions(more complex of course) to improve their services.</p>
+<p>This setup can scale beyond gym reviews. Imagine tracking customer sentiment across multiple locations, analyzing trends over time, or combining this data with CRM systems for deep customer intelligence.</p>
+<p>So, whether you&rsquo;re working on a startup idea, enterprise analytics, or just flexing your cloud skills, these tools make real-time insights more accessible than ever.</p>
+<p>Now go build something awesome!</p>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://github.com/Flgado" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/JoaoFolgado9/" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri" target="_blank" rel="noopener noreferrer me"
+    title="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+</svg>
+</a>
+<a href="https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2025 João Folgado.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script async src="http://localhost:1313/js/main.js" ></script>
+
+    
+
+</body>
+</html>
