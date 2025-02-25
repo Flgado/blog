@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Techshepre</title>
-    <link>http://localhost:1313/</link>
+    <link>https://jfolgado.com/</link>
     <description>Recent content on Techshepre</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 21 Feb 2025 22:31:07 +0100</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 21 Feb 2025 22:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Building a Real-Time Sentiment Analysis Pipeline with AWS</title>
-      <link>http://localhost:1313/posts/sentimentalanalises/</link>
+      <link>https://jfolgado.com/posts/sentimentalanalises/</link>
       <pubDate>Fri, 21 Feb 2025 22:31:07 +0100</pubDate>
       
-      <guid>http://localhost:1313/posts/sentimentalanalises/</guid>
+      <guid>https://jfolgado.com/posts/sentimentalanalises/</guid>
       
-      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/post_2/test.drawio.svg&#34;
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/post_2/test.drawio.svg&#34;
     alt=&#34;Required User Permissions&#34;&gt;
 &lt;/figure&gt;
 
@@ -26,12 +26,12 @@
     
     <item>
       <title>Deploying a Secure API Using AWS SAM and Cognito Made Easy</title>
-      <link>http://localhost:1313/posts/serverlessapiwithauth/</link>
+      <link>https://jfolgado.com/posts/serverlessapiwithauth/</link>
       <pubDate>Mon, 21 Oct 2024 22:31:07 +0100</pubDate>
       
-      <guid>http://localhost:1313/posts/serverlessapiwithauth/</guid>
+      <guid>https://jfolgado.com/posts/serverlessapiwithauth/</guid>
       
-      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/post_1/graphic.jpeg&#34;&gt;
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/post_1/graphic.jpeg&#34;&gt;
 &lt;/figure&gt;
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -42,12 +42,12 @@
     
     <item>
       <title>About me</title>
-      <link>http://localhost:1313/about/</link>
+      <link>https://jfolgado.com/about/</link>
       <pubDate>Sat, 19 Oct 2024 15:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/about/</guid>
+      <guid>https://jfolgado.com/about/</guid>
       
-      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;http://localhost:1313/images/about-me.jpeg&#34;
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/about-me.jpeg&#34;
     alt=&#34;Cognito Build&#34;&gt;
 &lt;/figure&gt;
 
