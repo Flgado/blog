@@ -6,7 +6,22 @@
     <description>Recent content in Posts on Techshepre</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 21 Feb 2025 22:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 18 Jul 2025 10:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Art of Spooling with Go Trino Driver</title>
+      <link>https://jfolgado.com/posts/trinogoclientspooling/</link>
+      <pubDate>Fri, 18 Jul 2025 10:31:07 +0100</pubDate>
+      
+      <guid>https://jfolgado.com/posts/trinogoclientspooling/</guid>
+      
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/post_3/trino.png&#34;&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;This post aims to explain how we leveraged the Go Trino driver to make the most out of Trino’s spooling protocol. I’ll try to keep it short and sweet — first with a quick intro to the spooling protocol, then diving into how we orchestrated goroutines to squeeze out maximum performance, all while keeping in mind that we want to release resources from Trino as soon as possible (I’ll get into that).&lt;/p&gt;</description>
+      
+    </item>
+    
     <item>
       <title>Building a Real-Time Sentiment Analysis Pipeline with AWS</title>
       <link>https://jfolgado.com/posts/sentimentalanalises/</link>
