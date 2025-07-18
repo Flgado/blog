@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 18 Jul 2025 10:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>The Art of Spooling with Go Trino Driver</title>
+      <title>Behind the Scenes of Go Trino Driver — Making Spooling Work for You</title>
       <link>https://jfolgado.com/posts/trinogoclientspooling/</link>
       <pubDate>Fri, 18 Jul 2025 10:31:07 +0100</pubDate>
       

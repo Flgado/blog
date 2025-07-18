@@ -3,11 +3,11 @@
 <meta http-equiv="content-type" content="text/html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title itemprop="name">The Art of Spooling with Go Trino Driver | Techshepre</title>
-<meta property="og:title" content="The Art of Spooling with Go Trino Driver | Techshepre" />
-<meta name="twitter:title" content="The Art of Spooling with Go Trino Driver | Techshepre" />
-<meta itemprop="name" content="The Art of Spooling with Go Trino Driver | Techshepre" />
-<meta name="application-name" content="The Art of Spooling with Go Trino Driver | Techshepre" />
+<title itemprop="name">Behind the Scenes of Go Trino Driver — Making Spooling Work for You | Techshepre</title>
+<meta property="og:title" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You | Techshepre" />
+<meta name="twitter:title" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You | Techshepre" />
+<meta itemprop="name" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You | Techshepre" />
+<meta name="application-name" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You | Techshepre" />
 <meta property="og:site_name" content="" />
 
 <meta name="description" content="">
@@ -41,14 +41,14 @@
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "The Art of Spooling with Go Trino Driver",
+        "headline": "Behind the Scenes of Go Trino Driver — Making Spooling Work for You",
         "author": {
         "@type": "Person",
         "name": ""
         },
         "datePublished": "2025-07-18",
         "description": "",
-        "wordCount":  1478 ,
+        "wordCount":  1482 ,
         "mainEntityOfPage": "True",
         "dateModified": "2025-07-18",
         "image": {
@@ -68,7 +68,7 @@
     
     <meta property="og:url" content="https://jfolgado.com/posts/trinogoclientspooling/">
   <meta property="og:site_name" content="Techshepre">
-  <meta property="og:title" content="The Art of Spooling with Go Trino Driver">
+  <meta property="og:title" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You">
   <meta property="og:description" content="Introduction This post aims to explain how we leveraged the Go Trino driver to make the most out of Trino’s spooling protocol. I’ll try to keep it short and sweet — first with a quick intro to the spooling protocol, then diving into how we orchestrated goroutines to squeeze out maximum performance, all while keeping in mind that we want to release resources from Trino as soon as possible (I’ll get into that).">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
@@ -80,7 +80,7 @@
     
     
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="The Art of Spooling with Go Trino Driver">
+  <meta name="twitter:title" content="Behind the Scenes of Go Trino Driver — Making Spooling Work for You">
   <meta name="twitter:description" content="Introduction This post aims to explain how we leveraged the Go Trino driver to make the most out of Trino’s spooling protocol. I’ll try to keep it short and sweet — first with a quick intro to the spooling protocol, then diving into how we orchestrated goroutines to squeeze out maximum performance, all while keeping in mind that we want to release resources from Trino as soon as possible (I’ll get into that).">
 
 
@@ -171,7 +171,7 @@ stroke-linejoin="round" class="feather feather-home">
     <main class="page-content" aria-label="Content">
         <article>
             <header class="header">
-                <h1 class="header-title">The Art of Spooling with Go Trino Driver</h1>
+                <h1 class="header-title">Behind the Scenes of Go Trino Driver — Making Spooling Work for You</h1>
                 
                 
                 <div class="post-meta">
@@ -264,6 +264,10 @@ Imagine if <code>R</code> kept dispatching segments with no control — the down
 <p>But great protocols need smart clients to make the most of them. That’s where our Go Trino client comes in, carefully orchestrating goroutines like a well-oiled assembly line. Every worker — from fetchers to decoders to downloaders — plays a key role in making sure we pull data fast, decode it efficiently, and deliver it in order without blowing up our memory.</p>
 <p>Of course, no system is perfect. The final bottleneck — the synchronous, row-by-row processing enforced by Go’s database/sql — is a real thing. But it’s also a great opportunity for anyone willing to fork the client and push the boundaries further.</p>
 <p>In the end, it’s all about understanding the flow, tweaking the parameters for your workload, and squeezing every drop of performance out of Trino and your Go client. And hey — if you feel like hacking on this, you know where to find me! 😉</p>
+<h2 id="references">References:</h2>
+<ul>
+<li><a href="https://github.com/trinodb/trino-go-client">Go trino driver</a></li>
+</ul>
 
             </div>
         </article></main>

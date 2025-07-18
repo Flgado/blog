@@ -1,5 +1,5 @@
 +++
-title = 'The Art of Spooling with Go Trino Driver'
+title = 'Behind the Scenes of Go Trino Driver — Making Spooling Work for You'
 date = 2025-07-18T10:31:07+01:00
 draft = false
 +++
@@ -12,6 +12,7 @@ This post aims to explain how we leveraged the Go Trino driver to make the most 
 
 Of course, we also had to balance that with controlling memory usage on the client side.
 I’ll share how you can tweak parameters to better harness parallelism — and really let your machine show off its power.
+
 
 ## Direct vs Spooling Protocol
 
@@ -122,3 +123,7 @@ But great protocols need smart clients to make the most of them. That’s where 
 Of course, no system is perfect. The final bottleneck — the synchronous, row-by-row processing enforced by Go’s database/sql — is a real thing. But it’s also a great opportunity for anyone willing to fork the client and push the boundaries further.
 
 In the end, it’s all about understanding the flow, tweaking the parameters for your workload, and squeezing every drop of performance out of Trino and your Go client. And hey — if you feel like hacking on this, you know where to find me! 😉
+
+
+## References:
+- [Go trino driver](https://github.com/trinodb/trino-go-client)
