@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun | Techshepre</title>
+<meta property="og:title" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun | Techshepre" />
+<meta name="twitter:title" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun | Techshepre" />
+<meta itemprop="name" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun | Techshepre" />
+<meta name="application-name" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun | Techshepre" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="">
+<meta itemprop="description" content="" />
+<meta property="og:description" content="" />
+<meta name="twitter:description" content="" />
+
+<meta property="og:locale" content="en-us" />
+<meta name="language" content="en-us" />
+
+  <link rel="alternate" hreflang="en" href="https://jfolgado.com/posts/audittrail/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2025-08-11T22:31:07&#43;0100 />
+    <meta property="article:published_time" content=2025-08-11T22:31:07&#43;0100 />
+    <meta property="og:url" content="https://jfolgado.com/posts/audittrail/" />
+
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast \u0026 Fun",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2025-08-11",
+        "description": "",
+        "wordCount":  1271 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2025-08-11",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "Techshepre"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.134.1">
+
+    
+    <meta property="og:url" content="https://jfolgado.com/posts/audittrail/">
+  <meta property="og:site_name" content="Techshepre">
+  <meta property="og:title" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast & Fun">
+  <meta property="og:description" content=" Introduction When you’re running a distributed system, audit logs are your detective sidekick — they keep tabs on what’s happening, when, and by whom. But just having them isn’t enough; you need to capture and process them in a way that’s structured, reliable, and easy to query (because nobody wants to sift through a log swamp).
+AWS gives us all the building blocks to make that happen. And with AWS SAM (Serverless Application Model), you can deploy the whole pipeline as clean, repeatable infrastructure-as-code — no clicking around consoles for hours.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-08-11T22:31:07+01:00">
+    <meta property="article:modified_time" content="2025-08-11T22:31:07+01:00">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast & Fun">
+  <meta name="twitter:description" content=" Introduction When you’re running a distributed system, audit logs are your detective sidekick — they keep tabs on what’s happening, when, and by whom. But just having them isn’t enough; you need to capture and process them in a way that’s structured, reliable, and easy to query (because nobody wants to sift through a log swamp).
+AWS gives us all the building blocks to make that happen. And with AWS SAM (Serverless Application Model), you can deploy the whole pipeline as clean, repeatable infrastructure-as-code — no clicking around consoles for hours.">
+
+
+    
+
+    <link rel="canonical" href="https://jfolgado.com/posts/audittrail/">
+    <link href="/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
+    <link href="/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+
+<link rel="manifest" href="https://jfolgado.com/site.webmanifest">
+
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+
+    
+    </head>
+<body data-theme = "" class="notransition">
+
+<script src="/js/theme.min.8961c317c5b88b953fe27525839672c9343f1058ab044696ca225656c8ba2ab0.js" integrity="sha256-iWHDF8W4i5U/4nUlg5ZyyTQ/EFirBEaWyiJWVsi6KrA="></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="https://jfolgado.com/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/">
+                        Home
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/about/">
+                        Bio
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun</h1>
+                
+                
+                <div class="post-meta">
+                    <time datetime="2025-08-11T22:31:07&#43;01:00" itemprop="datePublished"> Aug 11, 2025 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <figure class="center"><img src="/images/post_4/audit_diagram.svg">
+</figure>
+
+<h2 id="introduction">Introduction</h2>
+<p>When you’re running a distributed system, audit logs are your detective sidekick — they keep tabs on what’s happening, when, and by whom. But just having them isn’t enough; you need to capture and process them in a way that’s structured, reliable, and easy to query (because nobody wants to sift through a log swamp).</p>
+<p>AWS gives us all the building blocks to make that happen. And with AWS SAM (Serverless Application Model), you can deploy the whole pipeline as clean, repeatable infrastructure-as-code — no clicking around consoles for hours.</p>
+<p>In this post, we’ll walk through a serverless audit log ingestion pipeline. Our focus is on the integration side: setting up Firehose, adding a Lambda transformation to configure partition keys, and making sure the whole thing just works. We’ll touch on some ways to save money on S3 storage (because who doesn’t like that?), but cost optimization isn’t our main quest — that part depends heavily on your specific use case.</p>
+<p>All code can be find <a href="https://github.com/Flgado/Aws-audit-data-pipeline">here</a></p>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>Here’s the game plan for our audit log pipeline:</p>
+<ol>
+<li>
+<p>Client systems send their audit log JSONs via a humble HTTP POST to our API Gateway endpoint.</p>
+</li>
+<li>
+<p>API Gateway calls the AuditReceiver Lambda function — basically the bouncer that checks IDs and lets the logs into the party.</p>
+</li>
+<li>
+<p>The AuditReceiver Lambda hands the event over to a Kinesis Data Firehose delivery stream (think of it as a very fast conveyor belt).</p>
+</li>
+<li>
+<p>Firehose summons the TransformationFunction Lambda, which gives the record a little makeover — enriching it and assigning partition keys based on the event’s metadata.</p>
+</li>
+<li>
+<p>Finally, Firehose neatly stores the transformed events in S3, sorted into folders by audit type, year, month, and day, so future-you can find them without losing sanity.</p>
+</li>
+</ol>
+<p><strong>Note</strong>: Yes, yes — having API Gateway trigger a Lambda here is not the most optimal setup. It’s just for demo purposes. In real life, you’d probably use something like an SNS topic or a Kinesis Data Stream for better scalability and lower latency.</p>
+<h2 id="sam-file-overview">Sam file overview</h2>
+<p>Since Firehose is the star of this blog, let’s zoom in on its configuration in our <code>template.yaml</code> (SAM file).</p>
+<pre tabindex="0"><code>Firehose:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    DependsOn:
+      - DeliveryStreamPolicy
+    Properties:
+      DeliveryStreamType: DirectPut
+      DeliveryStreamName: &#34;kdf-firehose-audit-folgado&#34;
+      ExtendedS3DestinationConfiguration: # where data is delivery
+        DynamicPartitioningConfiguration:
+          Enabled: true
+        BucketARN: !GetAtt DeliveryBucket.Arn
+        RoleARN: !GetAtt DeliveryStreamRole.Arn
+        ProcessingConfiguration: # will do transformations on the data
+          Enabled: true
+          Processors:
+            - Type: Lambda
+              Parameters:
+                - ParameterName: LambdaArn
+                  ParameterValue: !GetAtt TransformationFunction.Arn # the lambda function that will process the data
+        BufferingHints:
+          IntervalInSeconds: 120
+          SizeInMBs: 64
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: &#34;/aws/kinesisfirehose/ibcd&#34;
+          LogStreamName: &#34;S3Delivery&#34;
+        EncryptionConfiguration:
+          NoEncryptionConfig: &#34;NoEncryption&#34;
+        Prefix: &#34;audit_type=!{partitionKeyFromLambda:audit_type}/year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/&#34;
+        ErrorOutputPrefix: &#34;errors/!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/&#34;
+</code></pre><h3 id="a-couple-of-key-points">A couple of key points</h3>
+<ul>
+<li><strong>Dynamic Partitioning</strong>
+To have Firehose automatically split your data into folders based on keys, you’ll need:</li>
+</ul>
+<pre tabindex="0"><code>DynamicPartitioningConfiguration:
+          Enabled: true
+</code></pre><ul>
+<li>
+<p><strong>Buffering size</strong>
+When using dynamic partitioning, <code>SizeInMBs</code> <strong>must</strong> be <strong>64 MB or higher</strong>. No shortcuts here — Firehose insists on a healthy buffer.
+To not that if you go with Dynamic partition you your bufferringHing sizeInMDbs will must be equal or greater then 64 MBs.</p>
+</li>
+<li>
+<p><strong>Prefix magic</strong></p>
+</li>
+</ul>
+<pre tabindex="0"><code>Prefix: &#34;audit_type=!{partitionKeyFromLambda:audit_type}/year=!{partitionKeyFromLambda:year}/month=!{partitionKeyFromLambda:month}/day=!{partitionKeyFromLambda:day}/&#34;
+        ErrorOutputPrefix: &#34;errors/!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/&#34;
+</code></pre><p>This is where the folder structure in S3 gets defined. In our case, we’re using a Lambda to set those partition keys — but if you don’t need transformations, Firehose can do this directly via <a href="https://docs.aws.amazon.com/firehose/latest/dev/dynamic-partitioning-partitioning-keys.html#dynamic-partitioning-inline-parsing">inline paring</a>.</p>
+<h3 id="how-the-lambda-decides-partition-keys">How the Lambda decides partition keys</h3>
+<p>Inside our transformation Lambda, it’s as simple as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">transformedRecords</span> = append(<span style="color:#a6e22e">transformedRecords</span>, <span style="color:#a6e22e">events</span>.<span style="color:#a6e22e">KinesisFirehoseResponseRecord</span>{
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">RecordID</span>: <span style="color:#a6e22e">record</span>.<span style="color:#a6e22e">RecordID</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">Result</span>:   <span style="color:#a6e22e">events</span>.<span style="color:#a6e22e">KinesisFirehoseTransformedStateOk</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">Data</span>:     <span style="color:#a6e22e">transformedData</span>,
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">Metadata</span>: <span style="color:#a6e22e">events</span>.<span style="color:#a6e22e">KinesisFirehoseResponseRecordMetadata</span>{
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">PartitionKeys</span>: <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+</span></span><span style="display:flex;"><span>					<span style="color:#e6db74">&#34;audit_type&#34;</span>: <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">EventType</span>,
+</span></span><span style="display:flex;"><span>					<span style="color:#e6db74">&#34;year&#34;</span>:       <span style="color:#a6e22e">year</span>,
+</span></span><span style="display:flex;"><span>					<span style="color:#e6db74">&#34;month&#34;</span>:      <span style="color:#a6e22e">month</span>,
+</span></span><span style="display:flex;"><span>					<span style="color:#e6db74">&#34;day&#34;</span>:        <span style="color:#a6e22e">day</span>,
+</span></span><span style="display:flex;"><span>				},
+</span></span><span style="display:flex;"><span>			},
+</span></span><span style="display:flex;"><span>		})
+</span></span></code></pre></div><p>That’s it — the Lambda tags each record with its audit type, year, month, and day. Firehose then neatly drops them into matching folders in S3.</p>
+<p>🎉 <strong>Result</strong>: beautiful, organized partitions that will make your future Athena queries much faster and easier to write.</p>
+<figure class="center"><img src="/images/post_4/s3_bucket_partition.png">
+</figure>
+
+<h2 id="query-audits">Query audits</h2>
+<p>For our demo, we’ll keep things simple:</p>
+<ul>
+<li><strong>AWS Glue Crawler</strong> will automatically scan our S3 bucket and build the data schema.</li>
+<li><strong>AWS Athena</strong> will then let us query the logs with plain old SQL.</li>
+</ul>
+<p>Now, a quick heads-up: Glue Crawlers are super convenient… but they can also rack up costs if you run them too often. In many cases, it’s cheaper (and faster) to create your own schema manually. That said, Crawlers are still magical when your data structure changes — they can automatically detect new formats and create new database schemas on the fly. Total hands-off mode.</p>
+<p>As for Athena — it’s a great fit for occasional audit log digging. Perfect for:</p>
+<ul>
+<li>Tracking down that “mystery” API request</li>
+<li>Security investigations</li>
+<li>Spot checks on user activity</li>
+</ul>
+<p>Since you only pay for what you query, it’s very budget-friendly for sporadic use.</p>
+<p>Of course, Athena isn’t your only option. You could plug your S3 data into Trino, Metabase, Redshift, or whatever other analytics tool you love. But for lightweight, serverless, and quick queries… Athena does the job without breaking a sweat.</p>
+<h2 id="create-crawler-and-run-it">Create Crawler and Run It</h2>
+<figure class="center"><img src="/images/post_4/create_table.png">
+</figure>
+
+<ol>
+<li>Select your bucket where the audit logs are living their best life.</li>
+</ol>
+<figure class="center"><img src="/images/post_4/select_bucket.png">
+</figure>
+
+<ol start="2">
+<li>
+<p><strong>IAM Role time!</strong> The crawler needs permission to peek inside your bucket, so when AWS asks to create an IAM role, just nod and say yes.</p>
+</li>
+<li>
+<p><strong>Create your database</strong> and choose a crawler schedule. This determines how often Glue will check for new data and update your table schema (don’t set it to “every five seconds” unless you like surprise bills).</p>
+</li>
+</ol>
+<figure class="center"><img src="/images/post_4/select_db.png">
+</figure>
+
+<ol start="4">
+<li>Hit <strong>Create Crawler</strong> and then Run.</li>
+</ol>
+<p>And… voilà! Your schema is now ready to be queried.</p>
+<figure class="center"><img src="/images/post_4/schema.png">
+</figure>
+
+<h2 id="query-data-with-athenas">Query Data with Athenas</h2>
+<ol>
+<li>Query all the data — just to see what’s there.</li>
+</ol>
+<figure class="center"><img src="/images/post_4/first_query.png">
+</figure>
+
+<p>Notice the scanned data size? <code>10.26 KB.</code></p>
+<ol start="2">
+<li>Now, let’s see the magic of partitions. Run a filtered query that uses your partition keys:</li>
+</ol>
+<figure class="center"><img src="/images/post_4/second_query.png">
+</figure>
+
+<p>Boom — only <code>2.86 KB</code> scanned. That’s the power of partitions: they work like indexes, so Athena doesn’t waste time (or your money) reading data you don’t need.</p>
+<figure class="center"><img src="/images/post_4/index.png">
+</figure>
+
+<h2 id="cost-optimization-tips">Cost Optimization Tips</h2>
+<p>This setup works great out of the box, but if you want to keep your AWS bill looking slim, here are a few tricks:</p>
+<ul>
+<li>
+<p><strong>Compression is your friend</strong> — Use GZIP or Snappy to dramatically cut down S3 storage size. Smaller files = smaller bills.</p>
+</li>
+<li>
+<p><strong>Go columnar</strong> 📊 — Formats like Parquet or ORC not only compress well but also let Athena scan only the columns you need, which slashes query costs.</p>
+</li>
+<li>
+<p><strong>Bigger batches, fewer calls</strong>  📦 — Increase BufferingHints in Firehose so it processes larger batches, reducing how often Lambda gets called.</p>
+</li>
+</ul>
+<p>For most log analytics workloads, <strong>Parquet + Snappy</strong> is the sweet spot — compact storage and fast queries without losing flexibility.</p>
+<p>And one more thing: <strong>archive your old data</strong>. If you only query the last 30 days, move the older stuff to S3 Glacier or Deep Archive. It’s like putting winter clothes in storage — you keep them just in case, but they’re not eating up prime closet space (or budget).</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>And that’s a wrap! You now have a neat, serverless audit log ingestion pipeline that’s easy to deploy with AWS SAM and keeps your logs organized for quick, cost-efficient querying.</p>
+<p>We covered:</p>
+<ul>
+<li>Capturing audit logs with API Gateway and Lambda</li>
+<li>Setting up Firehose with dynamic partitioning and data transformation</li>
+<li>Using Glue Crawlers and Athena to make sense of your logs</li>
+<li>Ways to keep your AWS costs down without sacrificing performance</li>
+</ul>
+<p>Oh, and one more thing worth thinking about: making your S3 audit files <code>immutable</code> — meaning once they’re saved, they can’t be changed or deleted. This helps keep your logs trustworthy and safe from tampering. AWS S3 Object Lock can help you with that.</p>
+<p>With all this in place, you’ll be well-equipped to track and analyze your audit logs without too much hassle.</p>
+<p>Happy logging! 🎉</p>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://github.com/Flgado" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/JoaoFolgado9/" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri" target="_blank" rel="noopener noreferrer me"
+    title="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+</svg>
+</a>
+<a href="https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2025 João Folgado.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script src="https://jfolgado.com/js/main.min.35f435a5d8eac613c52daa28d8af544a4512337d3e95236e4a4978417b8dcb2f.js" integrity="sha256-NfQ1pdjqxhPFLaoo2K9USkUSM30&#43;lSNuSkl4QXuNyy8="></script>
+
+    
+
+</body>
+</html>
