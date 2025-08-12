@@ -6,7 +6,23 @@
     <description>Recent content in Posts on Techshepre</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 18 Jul 2025 10:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 11 Aug 2025 22:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a Serverless Audit Log Pipeline with AWS SAM — Easy, Fast &amp; Fun</title>
+      <link>https://jfolgado.com/posts/audittrail/</link>
+      <pubDate>Mon, 11 Aug 2025 22:31:07 +0100</pubDate>
+      
+      <guid>https://jfolgado.com/posts/audittrail/</guid>
+      
+      <description>&lt;figure class=&#34;center&#34;&gt;&lt;img src=&#34;https://jfolgado.com/images/post_4/audit_diagram.svg&#34;&gt;
+&lt;/figure&gt;
+
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;When you’re running a distributed system, audit logs are your detective sidekick — they keep tabs on what’s happening, when, and by whom. But just having them isn’t enough; you need to capture and process them in a way that’s structured, reliable, and easy to query (because nobody wants to sift through a log swamp).&lt;/p&gt;
+&lt;p&gt;AWS gives us all the building blocks to make that happen. And with AWS SAM (Serverless Application Model), you can deploy the whole pipeline as clean, repeatable infrastructure-as-code — no clicking around consoles for hours.&lt;/p&gt;</description>
+      
+    </item>
+    
     <item>
       <title>Behind the Scenes of Go Trino Driver — Making Spooling Work for You</title>
       <link>https://jfolgado.com/posts/trinogoclientspooling/</link>
