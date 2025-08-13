@@ -130,7 +130,7 @@ As for Athena — it’s a great fit for occasional audit log digging. Perfect f
 
 Since you only pay for what you query, it’s very budget-friendly for sporadic use.
 
-Of course, Athena isn’t your only option. You could plug your S3 data into Trino, Metabase, Redshift, or whatever other analytics tool you love. But for lightweight, serverless, and quick queries… Athena does the job without breaking a sweat.
+Of course, Athena isn’t your only option. You could query your S3 data with engines like Trino or Redshift Spectrum (both using the Glue Data Catalog), and then connect analytics tools like Metabase on top. But for lightweight, serverless, and quick queries… Athena does the job without breaking a sweat.
 
 
 ## Create Crawler and Run It
