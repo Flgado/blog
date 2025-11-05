@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights | Techshepre</title>
+<meta property="og:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights | Techshepre" />
+<meta name="twitter:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights | Techshepre" />
+<meta itemprop="name" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights | Techshepre" />
+<meta name="application-name" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights | Techshepre" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="">
+<meta itemprop="description" content="" />
+<meta property="og:description" content="" />
+<meta name="twitter:description" content="" />
+
+<meta property="og:locale" content="en-us" />
+<meta name="language" content="en-us" />
+
+  <link rel="alternate" hreflang="en" href="https://jfolgado.com/posts/mongopulse/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2025-11-05T11:31:07&#43;0100 />
+    <meta property="article:published_time" content=2025-11-05T11:31:07&#43;0100 />
+    <meta property="og:url" content="https://jfolgado.com/posts/mongopulse/" />
+
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2025-11-05",
+        "description": "",
+        "wordCount":  4226 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2025-11-05",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "Techshepre"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.134.1">
+
+    
+    <meta property="og:url" content="https://jfolgado.com/posts/mongopulse/">
+  <meta property="og:site_name" content="Techshepre">
+  <meta property="og:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights">
+  <meta property="og:description" content="Introduction n this blog, I’ll dive into a recent side project I built called mongo-pulse.
+This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-11-05T11:31:07+01:00">
+    <meta property="article:modified_time" content="2025-11-05T11:31:07+01:00">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights">
+  <meta name="twitter:description" content="Introduction n this blog, I’ll dive into a recent side project I built called mongo-pulse.
+This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).">
+
+
+    
+
+    <link rel="canonical" href="https://jfolgado.com/posts/mongopulse/">
+    <link href="/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
+    <link href="/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+
+<link rel="manifest" href="https://jfolgado.com/site.webmanifest">
+
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+
+    
+    </head>
+<body data-theme = "" class="notransition">
+
+<script src="/js/theme.min.8961c317c5b88b953fe27525839672c9343f1058ab044696ca225656c8ba2ab0.js" integrity="sha256-iWHDF8W4i5U/4nUlg5ZyyTQ/EFirBEaWyiJWVsi6KrA="></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="https://jfolgado.com/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/">
+                        Home
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/about/">
+                        Bio
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights</h1>
+                
+                
+                <div class="post-meta">
+                    <time datetime="2025-11-05T11:31:07&#43;01:00" itemprop="datePublished"> Nov 5, 2025 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <h1 id="introduction">Introduction</h1>
+<p>n this blog, I’ll dive into a recent side project I built called mongo-pulse.</p>
+<p>This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).</p>
+<p>I’ll walk through some of the implementation details and design decisions, explain which system calls are involved, and touch on the Mongo wire protocol — without diving too deep into the protocol rabbit hole.</p>
+<p>I tested everything on <strong>Linux kernel 6.8.0-86-generic</strong>, using the <strong>Go MongoDB client</strong>, <strong>Node.js MongoDB client</strong> and <strong>Python mongo client</strong>
+<em>(Spoiler: they use system calls quite differently — and yes, it’s kind of funny once you notice it!)</em></p>
+<p>Ah, and this blog isn’t about what eBPF, maps, or helpers are — there are already plenty of great posts on those topics.</p>
+<ul>
+<li><a href="https://github.com/Flgado/mongo-pulse">Source Code</a></li>
+</ul>
+<h1 id="background-what-we-need-to-know-first">Background: What We Need to Know First</h1>
+<p>Before getting our hands dirty with the implementation, let’s quickly review a few concepts that make the rest of this post easier to follow.</p>
+<h2 id="the-mongodb-wire-protocol-aka-how-mongo-talks">The MongoDB Wire Protocol (aka How Mongo Talks)</h2>
+<h3 id="header">Header</h3>
+<p>MongoDB uses a binary protocol called the <code>Mongo Wire Protocol</code> for communication between clients and the server. Every message starts with a standard header that looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">MsgHeader</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int32</span>   <span style="color:#a6e22e">messageLength</span>; <span style="color:#75715e">// total message size, including this
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int32</span>   <span style="color:#a6e22e">requestID</span>;     <span style="color:#75715e">// identifier for this message
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int32</span>   <span style="color:#a6e22e">responseTo</span>;    <span style="color:#75715e">// requestID from the original request
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                           <span style="color:#75715e">//   (used in responses from the database)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int32</span>   <span style="color:#a6e22e">opCode</span>;        <span style="color:#75715e">// message type
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>Since <code>mongo-pulse</code> doesn’t support compression yet, we’ll focus only on this header. This structure is at the heart of every MongoDB message — it’s how the client and server identify, match, and interpret requests and responses.</p>
+<p>In user space, we’ll mainly use the <code>requestID</code> and <code>responseTo</code> fields (with a little help from kernel-level data — more on that later) to map requests to their corresponding responses and measure latency.</p>
+<p>Another important field is <code>opCode</code>.
+Before MongoDB v5.1, this could represent many different message types. But since 5.1, there are only two that matter:</p>
+<ul>
+<li>
+<p><strong>2012</strong> → Compressed message</p>
+</li>
+<li>
+<p><strong>2013</strong> → Standard (uncompressed) message</p>
+</li>
+</ul>
+<p>In our eBPF program, we’ll focus on messages with <code>opCode = 2013</code>, since:</p>
+<ol>
+<li>Compression isn’t supported yet, and</li>
+<li>That’s the code used by MongoDB 5.1+ for standard communication.</li>
+</ol>
+<p>So, whenever we detect a system call involving a message with <code>opCode = 2013</code>, we know it’s part of the MongoDB query flow — and that’s where the fun begins!</p>
+<ul>
+<li><strong>References</strong>:</li>
+<li><a href="https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/#standard-message-header">MongoDB Wire Protocol - Standard Messsage Header</a></li>
+</ul>
+<h3 id="synchronous-behavior-thank-you-mongodb">Synchronous Behavior (Thank You, MongoDB!)</h3>
+<p>According to the MongoDB wire protocol specification:</p>
+<p>&ldquo;Single Track: A connection MUST limit itself to one request/response at a time. A connection MUST NOT multiplex or pipeline requests to an endpoint.&rdquo;</p>
+<p>In plain English: every MongoDB connection handles one request at a time — no multiplexing, no parallel messages on the same socket.</p>
+<p>And that’s fantastic news for us! 🎉
+Because this synchronous behavior makes our job of mapping requests and responses much easier.</p>
+<p>Each MongoDB client connection corresponds to a single socket, and each process that opens that socket has its own process ID (pid). When we observe system calls in the kernel, we can use the combination of <code>pid</code> (the process making the call) and <code>fd</code> (the file descriptor representing the socket) to uniquely identify the connection.</p>
+<ul>
+<li><strong>pid</strong> → identifies the process (e.g., your Node.js or Go app)</li>
+<li><strong>fs</strong> → identifies the file descriptor, which is essentially the “handle” the process uses to talk to MongoDB</li>
+<li><strong>Together</strong>, <code>pid + fs</code> uniquely identify a socket — and since Mongo doesn’t multiplex, that socket can only be handling one query at a time.</li>
+</ul>
+<p>Since Mongo doesn’t multiplex, that socket can only handle one query at a time — so we can confidently match a <code>write()</code> (the request) with a <code>read()</code> (the response) using just those two values.</p>
+<p>MongoDB’s “no pipelining” rule basically saves us from a lot of eBPF headaches. Thanks, MongoDB, for keeping it simple (for once) 😅</p>
+<ul>
+<li><strong>References</strong>:
+<ul>
+<li><a href="https://github.com/mongodb/specifications/blob/master/source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.md">MongoDB Specifications - Connection Monitoring and Pooling</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="system-calls-in-play-aka-ebpfs-gossip-sources-">System Calls in Play (aka eBPF’s Gossip Sources 🕵️‍♂️)</h2>
+<p>Before eBPF can work its magic, we need to decide where to listen in.
+System calls are perfect for this — they’re the “checkpoints” every user-space program passes through to ask the kernel for help. Whether your code is reading a file, writing to a socket, or connecting to a database, at some point it’s whispering:</p>
+<p>“Hey kernel, could you do this thing for me?”</p>
+<p>So, if we hook those syscalls, we can observe what the application is doing — without modifying it at all.</p>
+<h3 id="-write--sending-data-out">🧾 write() — Sending Data Out</h3>
+<p><strong>Normal purpose</strong>:
+<code>write(fd, buf, count)</code> is used by applications to send data somewhere — it could be writing bytes to a file, sending an HTTP request over a socket, or even logging something to stdout.</p>
+<p>The first argument (<code>fd</code>) identifies where to write, and the buffer contains the actual data.</p>
+<p><strong>In our context:</strong></p>
+<p>When a MongoDB client executes a query (like <code>find()</code>), it serializes that command into the <strong>Mongo Wire Protocol</strong> and sends it through a <strong>TCP socket</strong> to the database.
+That’s exactly what this syscall does — it’s the client saying:</p>
+<pre><code>“Hey MongoDB, here’s my query. Please be nice.”
+</code></pre>
+<p>By hooking <code>sys_enter_write</code>, mongo-pulse can see when a query is sent, how big it is, and (if we peek into the buffer) details like the standard header.</p>
+<h3 id="-read--getting-data-back">📖 read() — Getting Data Back</h3>
+<p><strong>Normal purpose:</strong>
+<code>read(fd, buf, count)</code> is the mirror image of <code>write()</code>. It asks the kernel to read up to count bytes from the object identified by <code>fd</code>.
+If that fd is a socket, this call will block until data arrives (unless it’s non-blocking).</p>
+<p><strong>In our context:</strong>
+After the client sends a query, it waits for MongoDB’s response — that happens right here.
+Hooking both <code>sys_enter_read</code> and <code>sys_exit_read</code> gives us the exact time we receive the response. Playing with write and read and using the power of maps you will see how we measure the latency.</p>
+<p>Here’s a real strace example from the Go client:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>[<span style="color:#a6e22e">pid</span> <span style="color:#ae81ff">29315</span>] <span style="color:#a6e22e">write</span>(<span style="color:#ae81ff">8</span>, <span style="color:#e6db74">&#34;\221\0\0\0\24\0\0\0\0\0\0\0\335\7\0\0\0\0\0\0\0|\0\0\0\2find\0\6&#34;</span><span style="color:#f92672">...</span>, <span style="color:#ae81ff">145</span>) = <span style="color:#ae81ff">145</span>
+</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">pid</span> <span style="color:#ae81ff">29315</span>] <span style="color:#a6e22e">read</span>(<span style="color:#ae81ff">8</span>, <span style="color:#e6db74">&#34;=\0\0\0\24\0\0\0\335\7\0\0\0\0\0\0\0005\2\0\0\3cursor\0\34\2\0&#34;</span><span style="color:#f92672">...</span>, <span style="color:#ae81ff">582</span>) = <span style="color:#ae81ff">582</span>
+</span></span></code></pre></div><p>Let’s translate:</p>
+<ol>
+<li><code>write(8,...)</code> → send 145 bytes of query data through socket 8.</li>
+<li><code>read(8, …)</code> → receive 582 bytes back from MongoDB through that same socket.</li>
+</ol>
+<p>you can understand how go client know the exact numbers of bytes it will receive! We will get into that, and was really fun this discovery !</p>
+<p>Because MongoDB connections are synchronous (one request at a time), we can easily match these two calls using <code>(pid, fd)</code> to compute the query duration.</p>
+<h3 id="-connect--making-friends-on-the-network">🔌 connect() — Making Friends on the Network</h3>
+<p><strong>Normal purpose:</strong>
+<code>connect(fd, sockaddr, addrlen)</code> is used to initiate a connection to another process — usually over the network.
+For TCP sockets, this means starting the <code>three-way handshake (SYN, SYN-ACK, ACK)</code></p>
+<p><strong>In our context</strong>:
+When a MongoDB client connects to <code>localhost:27017</code> (or any Mongo URI), it calls connect().
+By hooking <code>sys_enter_connect</code>, we can detect when a new MongoDB connection is created, record its IP/port, and tag it as “a socket we care about.”
+That way, later on, we can safely ignore unrelated syscalls from the same process (like logging or HTTP calls)..</p>
+<h3 id="-close--saying-goodbye-politely">🚪 close() — Saying Goodbye (Politely)</h3>
+<p><strong>Normal purpose</strong>:
+<code>close(fd)</code> releases the file descriptor so the kernel can free up resources.
+Whether it’s a file, socket, or pipe — once you call <code>close()</code>, that fd is dead to you.</p>
+<p><strong>In our context</strong>:
+When the MongoDB client finishes or the connection pool recycles a socket, it’ll eventually call <code>close()</code>.
+Hooking sys_enter_close allows us to clean up any internal state we’re tracking (like maps of pid + fd → query metadata).</p>
+<p>Think of it as our cleanup crew — no dangling sockets left behind!</p>
+<h1 id="my-implementation">My implementation</h1>
+<p>Alright, let’s get to the funny part — the implementation!
+In this section, I’ll walk through what happens in each eBPF hook we talked about earlier. Hopefully, by the end, everything clicks together like a well-tuned kernel module (minus the panic 😅).</p>
+<h2 id="connect">Connect()</h2>
+<p>Let’s start at the beginning of every database conversation — the connection.</p>
+<p>This hook is triggered every time my service calls <code>connect()</code>, i.e., when it opens a TCP connection to the MongoDB server.
+Right now, I’m mainly using it to record the connection’s IP and port, which I can later associate with queries.</p>
+<p>To be honest, I’m still deciding how much value this adds — maybe I’ll use it to <code>track connection pool behavior</code> in the future. For now, it’s mostly there to give extra context like “which connection this query went through.”</p>
+<p>The data is stored in an eBPF map called connections.
+Later, in the write() hook, I’ll show how this gets linked to queries.</p>
+<p>🧠 Implementation Details</p>
+<p>Here’s the eBPF hook for connect():</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#a6e22e">SEC</span>(<span style="color:#e6db74">&#34;tp/syscalls/sys_enter_connect&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">handle_connect</span>(<span style="color:#66d9ef">struct</span> trace_event_raw_sys_enter <span style="color:#f92672">*</span>ctx) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> sockaddr sa;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> sockaddr <span style="color:#f92672">*</span>addr_ptr <span style="color:#f92672">=</span> (<span style="color:#66d9ef">struct</span> sockaddr <span style="color:#f92672">*</span>)ctx<span style="color:#f92672">-&gt;</span>args[<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>addr_ptr) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>sa, <span style="color:#66d9ef">sizeof</span>(sa), addr_ptr)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> sock_key key <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        .pid <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_get_current_pid_tgid</span>() <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">32</span>,
+</span></span><span style="display:flex;"><span>        .fd <span style="color:#f92672">=</span> ctx<span style="color:#f92672">-&gt;</span>args[<span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> <span style="color:#66d9ef">connection_event_t</span> event <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        .fd <span style="color:#f92672">=</span> ctx<span style="color:#f92672">-&gt;</span>args[<span style="color:#ae81ff">0</span>],
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (sa.sa_family <span style="color:#f92672">==</span> AF_INET) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">struct</span> sockaddr_in sa4;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>sa4, <span style="color:#66d9ef">sizeof</span>(sa4), addr_ptr)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        event.port <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_ntohs</span>(sa4.sin_port);
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">10</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        __u32 ip4 <span style="color:#f92672">=</span> sa4.sin_addr.s_addr;
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">12</span>] <span style="color:#f92672">=</span> (ip4 <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">13</span>] <span style="color:#f92672">=</span> (ip4 <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">14</span>] <span style="color:#f92672">=</span> (ip4 <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">16</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        event.dst_ip[<span style="color:#ae81ff">15</span>] <span style="color:#f92672">=</span> (ip4 <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">24</span>) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        event.flags <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (sa.sa_family <span style="color:#f92672">==</span> AF_INET6) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">struct</span> sockaddr_in6 sa6;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>sa6, <span style="color:#66d9ef">sizeof</span>(sa6), addr_ptr)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        event.port <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_ntohs</span>(sa6.sin6_port);
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">*</span>(__u32 <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>event.dst_ip[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> sa6.sin6_addr.in6_u.u6_addr32[<span style="color:#ae81ff">0</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">*</span>(__u32 <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>event.dst_ip[<span style="color:#ae81ff">4</span>] <span style="color:#f92672">=</span> sa6.sin6_addr.in6_u.u6_addr32[<span style="color:#ae81ff">1</span>]; 
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">*</span>(__u32 <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>event.dst_ip[<span style="color:#ae81ff">8</span>] <span style="color:#f92672">=</span> sa6.sin6_addr.in6_u.u6_addr32[<span style="color:#ae81ff">2</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">*</span>(__u32 <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>event.dst_ip[<span style="color:#ae81ff">12</span>] <span style="color:#f92672">=</span> sa6.sin6_addr.in6_u.u6_addr32[<span style="color:#ae81ff">3</span>];
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        event.flags <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">bpf_map_update_elem</span>(<span style="color:#f92672">&amp;</span>connections, <span style="color:#f92672">&amp;</span>key, <span style="color:#f92672">&amp;</span>event, BPF_ANY);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>🧩 What’s Happening Here</p>
+<p>Let’s break this down step-by-step:</p>
+<ol>
+<li>
+<p><strong>Grab the connection info</strong>:
+We extract the socket address from the syscall’s arguments and safely read it from user space with <code>bpf_probe_read_user()</code> — because in eBPF, direct pointer dereferencing is a one-way ticket to rejection by the verifier. 🚫</p>
+</li>
+<li>
+<p><strong>Build a key</strong>:
+The key for our map is a combination of the process ID (pid) and file descriptor (fd).
+This <code>(pid, fd)</code> pair uniquely identifies a connection.</p>
+</li>
+<li>
+<p><strong>Detect address family</strong>:
+We handle both IPv4 (AF_INET) and IPv6 (AF_INET6).</p>
+</li>
+</ol>
+<ul>
+<li>For IPv4, we manually expand the 4-byte IP into a 16-byte array (IPv6-mapped format).</li>
+<li>For IPv6, we copy the full address directly.
+The flags field marks which type it is.</li>
+</ul>
+<ol start="4">
+<li><strong>Store the connection</strong>:
+This is where things start to get interesting — the moment your app actually sends a query to MongoDB.</li>
+</ol>
+<h2 id="write">Write()</h2>
+<p>Snipped of the code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> mongodb_header {
+</span></span><span style="display:flex;"><span>    __u32 message_length;
+</span></span><span style="display:flex;"><span>    __u32 request_id;
+</span></span><span style="display:flex;"><span>    __u32 response_to;
+</span></span><span style="display:flex;"><span>    __u32 op_code;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span>(buf_len <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">struct</span> mongodb_header)){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> mongodb_header header;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>header, <span style="color:#66d9ef">sizeof</span>(header), buf)){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (header.op_code <span style="color:#f92672">!=</span> OP_MSG){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><p>This is the part where I try to detect whether the write() system call is actually sending MongoDB traffic or just some random data.</p>
+<p>Let’s break it down:</p>
+<ol>
+<li>
+<p><strong>Check the buffer size</strong>
+The first thing I do is check if the buffer size (<code>buf_len</code>) is smaller than the size of a MongoDB message header (remember that from earlier?).
+If it’s smaller, I can safely ignore it — there’s no way it’s a valid Mongo message.</p>
+</li>
+<li>
+<p><strong>Copy the header from user space</strong>
+Using <code>bpf_probe_read_user()</code>, I read the first few bytes from the buffer into my mongodb_header struct. This lets me safely inspect the header without breaking the eBPF verifier’s heart 💔.</p>
+</li>
+<li>
+<p><strong>Check the op_code</strong>
+Finally, I look at the op_code field — the fourth value in the header.
+If it’s 2013, that means the message is of type OP_MSG, the standard (uncompressed) MongoDB message format used since version 5.1.
+That’s my signal: this system call is part of a MongoDB query! 🚀</p>
+</li>
+</ol>
+<p>If the <code>op_code</code> doesn’t match, I just skip it — not every <code>write()</code> is Mongo-related, after all.</p>
+<h3 id="-building-and-sending-the-query-event">🧩 Building and Sending the Query Event</h3>
+<p>Now that I’ve identified a <code>write()</code> call as a valid MongoDB request, the next step is to build an event I can recognize later — when I see the corresponding response in <code>read()</code>.</p>
+<p>For that, I need a unique key to identify this specific connection and query.</p>
+<p>🗝️ <strong>Creating the Key</strong></p>
+<p>Since multiple processes (and even threads) can talk to MongoDB, I combine two pieces of information that together are guaranteed to be unique for a single connection:</p>
+<ul>
+<li>
+<p><strong>pid</strong> → identifies the process (e.g., your Go or Node.js client)</p>
+</li>
+<li>
+<p><strong>fd</strong> → identifies the file descriptor for the socket in that process</p>
+</li>
+</ul>
+<p>Together they form our unique key (<code>pid + fd</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> sock_key key <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    .pid <span style="color:#f92672">=</span> pid,
+</span></span><span style="display:flex;"><span>    .fd <span style="color:#f92672">=</span> fd,
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>This same key will later help us match the query with its response, and also link it back to connection info (like IP and port) stored earlier.</p>
+<p>🧱 Building the mongo_query_event</p>
+<p>Once I have the key, I start assembling the data that I want to send up to user space — my custom structure called <code>mongo_query_event</code>.</p>
+<p>This includes:</p>
+<ol>
+<li>
+<p><strong>Connection info</strong> from the connections map (the IP and port recorded in the connect() hook).</p>
+</li>
+<li>
+<p>The <code>pid</code> and <code>fd</code> from the current syscall.</p>
+</li>
+<li>
+<p>The requestId extracted earlier from the MongoDB message header.</p>
+</li>
+<li>
+<p>Up to <code>1024</code> bytes from the payload — not because I love round numbers, but because eBPF doesn’t let you go wild with memory. The kernel verifier keeps you on a short leash, so grabbing a kilobyte of data is a safe way to peek at the query without getting yelled at by the verifier.</p>
+</li>
+</ol>
+<p>After building all that, I send the event to user space through a BPF ring buffer called mongo_queries.</p>
+<p>On the user-space side, the tool stores this data in a map so that when the response arrives (from the read() hook), it can match them and print the full query info along with its latency.</p>
+<p>⏱️ <strong>Tracking the Start Time</strong></p>
+<p>Before sending the event, I also record the current timestamp.
+This lets me calculate how long MongoDB took to reply later.</p>
+<p>Here’s the helper function that handles both the ring buffer submission and time tracking:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> __always_inline <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">send</span>(<span style="color:#66d9ef">struct</span> mongodb_event <span style="color:#f92672">*</span>event) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (event <span style="color:#f92672">==</span> NULL) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> sock_key key;
+</span></span><span style="display:flex;"><span>    key.pid <span style="color:#f92672">=</span> event<span style="color:#f92672">-&gt;</span>pid;
+</span></span><span style="display:flex;"><span>    key.fd <span style="color:#f92672">=</span> event<span style="color:#f92672">-&gt;</span>fd;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Send event to user space
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">bpf_ringbuf_submit</span>(event, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Save the start time for latency calculation
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> <span style="color:#66d9ef">mongodb_timing_t</span> timing_entry <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        .start_time <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_ktime_get_ns</span>()
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">bpf_map_update_elem</span>(<span style="color:#f92672">&amp;</span>timing, <span style="color:#f92672">&amp;</span>key, <span style="color:#f92672">&amp;</span>timing_entry, BPF_ANY);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>So what’s happening here?</p>
+<ul>
+<li>
+<p>The event is pushed to the ring buffer, where user space can consume it asynchronously.</p>
+</li>
+<li>
+<p>At the same time, the hook stores the current time (bpf_ktime_get_ns()) in the timing hash map under the same (pid + fd) key.</p>
+</li>
+</ul>
+<p>When the corresponding read() event happens later, I’ll look up that timestamp to compute the query latency.</p>
+<p>It’s a bit like dropping a pin in time —</p>
+<pre><code>“MongoDB query sent at 10:42:17.623... Let’s see when it comes back.”
+</code></pre>
+<h2 id="read--where-the-magic-and-latency-happens">read() — Where the Magic (and Latency) Happens</h2>
+<p>This is where I finally calculate the query latency!
+But before getting there… oh boy — this is where things got interesting (and slightly painful).</p>
+<p>Just like in the write() hook, I first need to detect if a read() system call is MongoDB-related.
+Easy, right? Well, nope — because clients behave very differently here. 😅</p>
+<p>🧩 <strong>Different Clients, Different Behaviors</strong></p>
+<p>When using the <strong>Mongo shell</strong> or the <strong>Node.js</strong> driver, everything is nice and simple:
+the client reads the entire MongoDB response in a single read() system call.
+Life is good, everything fits nicely in one go.</p>
+<p>But then comes the <strong>Go MongoDB driver</strong>, and things get funnier.</p>
+<p>The Go client first reads <strong>only the first 4 bytes</strong> of the message — that’s the <code>messageLength</code> field in the MongoDB header.
+Why? Because those 4 bytes tell the client exactly how big the message will be, including the header itself.
+So Go does this small pre-read to know how much memory to allocate for the full message.
+Smart move! (and also mildly annoying for me 😅).</p>
+<p>Here’s what that looks like in an *<code>strace</code> trace from a Go client:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>pid 29315<span style="color:#f92672">]</span> write<span style="color:#f92672">(</span>8, <span style="color:#e6db74">&#34;\221\0\0\0\24\0\0\0\0\0\0\0\335\7\0\0\0\0\0\0\0|\0\0\0\2find\0\6&#34;</span>..., 145<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">145</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>pid 29315<span style="color:#f92672">]</span> read<span style="color:#f92672">(</span>8, <span style="color:#e6db74">&#34;J\2\0\0&#34;</span>, 4<span style="color:#f92672">)</span>       <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>pid 29315<span style="color:#f92672">]</span> read<span style="color:#f92672">(</span>8, <span style="color:#e6db74">&#34;=\0\0\0\24\0\0\0\335\7\0\0\0\0\0\0\0005\2\0\0\3cursor\0\34\2\0&#34;</span>..., 582<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">582</span>
+</span></span></code></pre></div><p>That second line is the 4-byte sneak peek. Beautiful — and also the reason I had to adjust my logic in the eBPF program. Curiose how other clients do this !</p>
+<p>🧠 <strong>Handling Partial Reads in eBPF</strong></p>
+<p>So on the kernel side, I had to handle both cases:</p>
+<ul>
+<li>Clients that read everything at once (easy mode ✅)</li>
+<li>Clients like Go that read the message in chunks (boss level 😈)</li>
+</ul>
+<p>Here’s a simplified snippet from the <code>read()</code> hook that shows how I deal with this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>__u32 pid <span style="color:#f92672">=</span> <span style="color:#a6e22e">bpf_get_current_pid_tgid</span>() <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">32</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (bytes_read <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">struct</span> mongodb_header)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Some drivers (like Go) read partial headers — handle carefully
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>__u32 first_bytes <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, second_bytes <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, third_bytes <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, fourth_bytes <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (bytes_read <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">4</span>)  <span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>first_bytes, <span style="color:#ae81ff">4</span>, buf);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (bytes_read <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">8</span>)  <span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>second_bytes, <span style="color:#ae81ff">4</span>, (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)buf <span style="color:#f92672">+</span> <span style="color:#ae81ff">4</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (bytes_read <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">12</span>) <span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>third_bytes, <span style="color:#ae81ff">4</span>, (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)buf <span style="color:#f92672">+</span> <span style="color:#ae81ff">8</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (bytes_read <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">16</span>) <span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>fourth_bytes, <span style="color:#ae81ff">4</span>, (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)buf <span style="color:#f92672">+</span> <span style="color:#ae81ff">12</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> mongodb_header header;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Case 1: Drivers that read the full message at once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (fourth_bytes <span style="color:#f92672">==</span> OP_MSG) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">bpf_probe_read_user</span>(<span style="color:#f92672">&amp;</span>header, <span style="color:#66d9ef">sizeof</span>(header), buf)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Case 2: Drivers that read in parts (like Go)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (third_bytes <span style="color:#f92672">==</span> OP_MSG) {
+</span></span><span style="display:flex;"><span>    header.message_length <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    header.request_id     <span style="color:#f92672">=</span> first_bytes;
+</span></span><span style="display:flex;"><span>    header.response_to    <span style="color:#f92672">=</span> second_bytes;
+</span></span><span style="display:flex;"><span>    header.op_code        <span style="color:#f92672">=</span> third_bytes;
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>So what’s going on here?</p>
+<ul>
+<li>
+<p>I carefully read the first 16 bytes of the user buffer — 4 bytes at a time — so I can reconstruct the MongoDB header no matter how much the client decided to read.</p>
+</li>
+<li>
+<p>If the op_code (the 4th field) matches OP_MSG (value 2013), I know it’s a MongoDB message.</p>
+</li>
+<li>
+<p>Then, if the read looks partial (like in the Go case), I manually piece together the header fields.</p>
+</li>
+</ul>
+<p>This part took me way too long to get right, but once I realized why the Go driver behaved that way… it was oddly satisfying. 😎</p>
+<p>⏱️ <strong>Calculating the Latency</strong></p>
+<p>Then, you probably already know what’s coming next…
+Time to measure how long that query actually took!</p>
+<p>I grab the timestamp I previously saved in the <code>timing</code> map (remember that from the <code>write()</code> section?) and calculate the difference between that and the current time.
+<strong>Voilà — query latency!</strong> 🎯</p>
+<p>After that, I send a new timing event to user space through another ring buffer called query_timings, containing:</p>
+<ul>
+<li>pid</li>
+<li>fd</li>
+<li>requestId</li>
+<li>and <code>delta</code> (the latency in nanoseconds)</li>
+</ul>
+<p>On the user-space side, I’ve got a small Go routine constantly reading from this buffer.
+As soon as it receives a timing event, it looks up the matching entry in the <code>mongo_query</code> map, grabs the query details, and prints everything together.</p>
+<h2 id="-results">📊 Results</h2>
+<p>So what does all this actually look like in action?
+Here’s a real example of what mongo-pulse prints out when it detects a MongoDB operation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">🔥</span> <span style="color:#a6e22e">MongoDB</span> <span style="color:#a6e22e">Operation</span> <span style="color:#a6e22e">Detected</span>!
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">PID</span>: <span style="color:#ae81ff">144431</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">FD</span>: <span style="color:#ae81ff">8</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Request</span> <span style="color:#a6e22e">ID</span>: <span style="color:#ae81ff">16</span>
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">⏱</span><span style="color:#a6e22e">️</span>  <span style="color:#a6e22e">Response</span> <span style="color:#a6e22e">Time</span>: <span style="color:#ae81ff">895894</span> <span style="color:#a6e22e">ns</span>
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">🌐</span> <span style="color:#a6e22e">Connection</span>: <span style="color:#ae81ff">127.0.0.1</span>:<span style="color:#ae81ff">27017</span>
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">📝</span> <span style="color:#a6e22e">All</span> <span style="color:#a6e22e">Readable</span> <span style="color:#a6e22e">Strings</span>: [<span style="color:#a6e22e">hello</span> <span style="color:#a6e22e">helloOk</span> <span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">db</span> <span style="color:#a6e22e">admi</span>]
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">🔒</span> <span style="color:#a6e22e">This</span> <span style="color:#a6e22e">query</span> <span style="color:#a6e22e">was</span> <span style="color:#a6e22e">encrypted</span>
+</span></span></code></pre></div><p>Pretty cool, right?
+You get all the juicy details: process info, connection info, and even a sneak peek at the query payload — all without adding any instrumentation to your code.</p>
+<p>🧩 <strong>More Examples</strong></p>
+<p>Here are a few more snippets showing different MongoDB operations and their response times:</p>
+<pre tabindex="0"><code>⏱️  Response Time: 1536027 ns
+📝 All Readable Strings: [aggregate users pipeline $lookup from orders localField _id foreignField user_id as user_orders $unwind $user_orders $group total_spent $sum $user_orders.amount orders_count $sum _id $_id name $first $name $sort total_spent $limit cursor lsid id &amp;|H C^ $db testd]
+
+--------
+📝 All Readable Strings: [find users filter age $gt 4@ limit lsid id &amp;|H C^ $db testd]
+-------
+
+------
+⏱️  Response Time: 15208394 ns
+📝 All Readable Strings: [insert testcol ordered lsid id ~Nt hH $db testdb documents _id l_ data test_data_0 id _id l_ id data test_data_1 _id l_ id data test_data_2 _id l_ id data test_data_3 _id l_ id data test_data_4 _id l_ id data test_data_5 _id l_ id data test_data_6 _id l_ id data test_data_7 _id l_ data test_data_8 id _id l_ id data test_data_9 _id l_ data test_data_10 id _id l_ id data test_data_11 _id l_ id data test_data_12 _id l_ id data test_data_13 _id l_ id data test_data_14 _id l_ id data test_data_15 _id l_ id data test_data_16 _id l_]
+
+
+-------
+⏱️  Response Time: 1312401 ns
+📝 All Readable Strings: [getMore +;| collection testcol batchSize lsid id =^ $db testd]
+
+--------------
+ ⏱️  Response Time: 9700951 ns
+ 📝 All Readable Strings: [aggregate testcol pipeline $match id $gte $group _id $id count $sum $sort _id $limit cursor lsid id =^ $db testd]
+
+ -----------
+⏱️  Response Time: 9700951 ns
+ 📝 All Readable Strings: [aggregate testcol pipeline $match id $gte $group _id $id count $sum $sort _id $limit cursor lsid id =^ $db testd]
+</code></pre><h2 id="-wait-but-this-guy-knows-the-data-is-encrypted-right">🕵️‍♂️ Wait, But This Guy Knows the Data Is Encrypted… Right?</h2>
+<p>Hehe, of course I didn’t forget that! 😏
+You’re right — in most cases, the data sent over the wire is indeed encrypted.</p>
+<p>Most modern applications handle TLS termination entirely in user space, using libraries like OpenSSL (or equivalents). These libraries manage all the complex encryption and decryption internally before any data ever reaches the kernel.
+That means any packet-level observation from kernel space (like what you’d get from <code>tcpdump</code> or socket-level eBPF hooks) will only see ciphertext.</p>
+<p>So… is it impossible to see the plaintext?</p>
+<p>👉 Nope!</p>
+<p>This is where eBPF gets really interesting.</p>
+<p>eBPF lets you attach probes directly to <strong>user-space functions</strong> — these are called <code>uprobes</code> (for function entry) and <code>uretprobes</code> (for function return).
+You can use them on any ELF executable or shared object, as long as the symbols aren’t stripped.</p>
+<p>By hooking specific OpenSSL functions like <code>SSL_write_ex</code> and <code>SSL_read_ex</code>, you can catch the data <strong>right before it gets encrypted (on SSL_write_ex) or right after it’s decrypted (on SSL_read_ex)</strong>.
+In other words, you get a peek at the plaintext TLS traffic, just inside the app — right before it puts on (or takes off) its encryption disguise. 🔍✨</p>
+<p><strong>Why _ex Functions?</strong></p>
+<p>Newer versions of OpenSSL (≥ 1.1.1) introduced these <code>_ex</code> APIs — for example, SSL_write_ex and SSL_read_ex.
+They use safer types (size_t instead of int) and clearer semantics.
+Modern runtimes (like Python 3, Node.js, etc.) typically link against these updated APIs.
+So if you hook the older SSL_write or SSL_read functions, you might see… nothing (I’ve been there 😅).
+But as soon as you switch to the _ex versions — everything comes to life.</p>
+<p>Most languages, like Python and Node, rely on the <strong>system’s OpenSSL library</strong>, often located at something like <code>/usr/lib/x86_64-linux-gnu/libssl.so.3</code>.
+So by attaching uprobes there, you’re effectively tracing what their TLS layer is doing — before the data ever leaves user space.</p>
+<p>(For example Go and Java are exceptions — they implement their own TLS stacks, so no libssl calls to hook.)</p>
+<p>In my next blog, I’ll apply what I have build here to a Go application. It will be interesting to demonstrate how eBPF can attach to a specific function in a binary (spoiler alert).</p>
+<p>🧠 <strong>Why Non-Stripped Functions Matter</strong></p>
+<p>When a binary or shared library is not stripped, it still contains symbol information — essentially, human-readable function names like SSL_write_ex, SSL_read_ex, etc.
+This makes it straightforward for tools (including eBPF) to locate and attach probes to specific functions.
+If the binary is stripped, all that metadata is removed, leaving only raw addresses — you can still hook functions, but it’s much harder because you need to know their exact memory offsets.
+That’s why using system libraries (like OpenSSL) is convenient — they’re almost always shipped with symbols intact.</p>
+<p><strong>TL;DR</strong>:
+Even though TLS encrypts data before it hits the network, eBPF can hook into user-space functions where the data is still in plaintext.
+By tracing <code>SSL_write_ex</code> and <code>SSL_read_ex</code>, you can observe what’s really being sent or received — right before or right after encryption.
+Pretty wild, huh? 🔓🐝</p>
+<figure class="center"><img src="/images/post_5/libssl_so.png"
+    alt="Traces"><figcaption>
+      <h4>The power of eBPF in action</h4>
+    </figcaption>
+</figure>
+
+<h2 id="-conclusion">🧠 Conclusion</h2>
+<p>Building <code>mongo-pulse</code> started as a simple experiment to track MongoDB query times — but it quickly became a deep dive into how clients, drivers, and the kernel interact.</p>
+<p>By tracing syscalls like <code>connect</code>, <code>write</code>, and <code>read</code>, we uncovered how MongoDB clients communicate at a level that’s usually invisible. The synchronous nature of the wire protocol made it surprisingly straightforward to map requests and responses, while eBPF gave us a safe, zero-instrumentation window into that behavior.</p>
+<p>The best part?
+We did all this `<strong>without changing a single line of application code</strong> — just by observing what’s already happening.</p>
+<p>In the next post, we’ll take things up a notch: moving from system calls to user-space (others that are not so easy as SSL_READ and SSL_WRITE!) function tracing with eBPF uprobes. We’ll attach directly to Go runtime functions and peek inside the binary itself — turning eBPF from a tracing tool into something that feels like developer superpowers. ⚡</p>
+<p>Stay tuned — it’s going to be fun. 🧠🐝</p>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://github.com/Flgado" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/JoaoFolgado9/" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri" target="_blank" rel="noopener noreferrer me"
+    title="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+</svg>
+</a>
+<a href="https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2025 João Folgado.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script src="https://jfolgado.com/js/main.min.35f435a5d8eac613c52daa28d8af544a4512337d3e95236e4a4978417b8dcb2f.js" integrity="sha256-NfQ1pdjqxhPFLaoo2K9USkUSM30&#43;lSNuSkl4QXuNyy8="></script>
+
+    
+
+</body>
+</html>
