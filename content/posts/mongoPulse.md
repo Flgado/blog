@@ -5,7 +5,7 @@ draft = false
 +++
 
 # Introduction
-n this blog, I’ll dive into a recent side project I built called mongo-pulse.
+In this blog, I’ll dive into a recent side project I built called mongo-pulse.
 
 This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).
 
