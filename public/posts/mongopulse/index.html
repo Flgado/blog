@@ -69,7 +69,7 @@
     <meta property="og:url" content="https://jfolgado.com/posts/mongopulse/">
   <meta property="og:site_name" content="Techshepre">
   <meta property="og:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights">
-  <meta property="og:description" content="Introduction n this blog, I’ll dive into a recent side project I built called mongo-pulse.
+  <meta property="og:description" content="Introduction In this blog, I’ll dive into a recent side project I built called mongo-pulse.
 This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
@@ -82,7 +82,7 @@ This small tool shows how powerful eBPF can be for tracking system calls to meas
     
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights">
-  <meta name="twitter:description" content="Introduction n this blog, I’ll dive into a recent side project I built called mongo-pulse.
+  <meta name="twitter:description" content="Introduction In this blog, I’ll dive into a recent side project I built called mongo-pulse.
 This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).">
 
 
@@ -184,7 +184,7 @@ stroke-linejoin="round" class="feather feather-home">
             
             <div class="page-content">
                 <h1 id="introduction">Introduction</h1>
-<p>n this blog, I’ll dive into a recent side project I built called mongo-pulse.</p>
+<p>In this blog, I’ll dive into a recent side project I built called mongo-pulse.</p>
 <p>This small tool shows how powerful eBPF can be for tracking system calls to measure MongoDB query latency — and it even gives you some juicy details about the query payload, request ID, and how long each query took to run. Basically, it helps you spot slow queries in your application without needing any instrumentation (or you could just use Mongo Atlas Query Insights… but where’s the fun in that, right? 😅).</p>
 <p>I’ll walk through some of the implementation details and design decisions, explain which system calls are involved, and touch on the Mongo wire protocol — without diving too deep into the protocol rabbit hole.</p>
 <p>I tested everything on <strong>Linux kernel 6.8.0-86-generic</strong>, using the <strong>Go MongoDB client</strong>, <strong>Node.js MongoDB client</strong> and <strong>Python mongo client</strong>
