@@ -6,7 +6,24 @@
     <description>Recent content on Techshepre</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 05 Nov 2025 11:31:07 +0100</lastBuildDate><atom:link href="https://jfolgado.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 26 Feb 2026 10:00:00 +0100</lastBuildDate><atom:link href="https://jfolgado.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions</title>
+      <link>https://jfolgado.com/posts/aiv3knowledgebasepipelinee/</link>
+      <pubDate>Thu, 26 Feb 2026 10:00:00 +0100</pubDate>
+      
+      <guid>https://jfolgado.com/posts/aiv3knowledgebasepipelinee/</guid>
+      
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;In this post, I’ll walk through a side project I built to explore one of the most talked-about patterns in AI right now: &lt;strong&gt;RAG&lt;/strong&gt; — Retrieval-Augmented Generation.&lt;/p&gt;
+&lt;p&gt;The idea was simple:&lt;/p&gt;
+&lt;p&gt;I have a collection of gym documents — pricing sheets, schedules, policies, and class descriptions — and I want people to ask natural-language questions about them and receive accurate, human-sounding answers.&lt;/p&gt;
+&lt;p&gt;Not hallucinations.&lt;br&gt;
+Not vague summaries.&lt;br&gt;
+Answers grounded in the actual documents.&lt;/p&gt;</description>
+      
+    </item>
+    
     <item>
       <title>Tracing MongoDB Queries with eBPF: From Syscalls to Latency Insights</title>
       <link>https://jfolgado.com/posts/mongopulse/</link>

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions | Techshepre</title>
+<meta property="og:title" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions | Techshepre" />
+<meta name="twitter:title" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions | Techshepre" />
+<meta itemprop="name" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions | Techshepre" />
+<meta name="application-name" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions | Techshepre" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="">
+<meta itemprop="description" content="" />
+<meta property="og:description" content="" />
+<meta name="twitter:description" content="" />
+
+<meta property="og:locale" content="en-us" />
+<meta name="language" content="en-us" />
+
+  <link rel="alternate" hreflang="en" href="https://jfolgado.com/posts/aiv3knowledgebasepipelinee/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2026-02-26T10:00:00&#43;0100 />
+    <meta property="article:published_time" content=2026-02-26T10:00:00&#43;0100 />
+    <meta property="og:url" content="https://jfolgado.com/posts/aiv3knowledgebasepipelinee/" />
+
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2026-02-26",
+        "description": "",
+        "wordCount":  4349 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2026-02-26",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "Techshepre"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.134.1">
+
+    
+    <meta property="og:url" content="https://jfolgado.com/posts/aiv3knowledgebasepipelinee/">
+  <meta property="og:site_name" content="Techshepre">
+  <meta property="og:title" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions">
+  <meta property="og:description" content="Introduction In this post, I’ll walk through a side project I built to explore one of the most talked-about patterns in AI right now: RAG — Retrieval-Augmented Generation.
+The idea was simple:
+I have a collection of gym documents — pricing sheets, schedules, policies, and class descriptions — and I want people to ask natural-language questions about them and receive accurate, human-sounding answers.
+Not hallucinations.
+Not vague summaries.
+Answers grounded in the actual documents.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-02-26T10:00:00+01:00">
+    <meta property="article:modified_time" content="2026-02-26T10:00:00+01:00">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions">
+  <meta name="twitter:description" content="Introduction In this post, I’ll walk through a side project I built to explore one of the most talked-about patterns in AI right now: RAG — Retrieval-Augmented Generation.
+The idea was simple:
+I have a collection of gym documents — pricing sheets, schedules, policies, and class descriptions — and I want people to ask natural-language questions about them and receive accurate, human-sounding answers.
+Not hallucinations.
+Not vague summaries.
+Answers grounded in the actual documents.">
+
+
+    
+
+    <link rel="canonical" href="https://jfolgado.com/posts/aiv3knowledgebasepipelinee/">
+    <link href="/style.min.d49619ec1132ffe5903a089bc3a179fa9fc9d6616165e586715a8dfbc6d1bc1c.css" rel="stylesheet">
+    <link href="/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+
+<link rel="manifest" href="https://jfolgado.com/site.webmanifest">
+
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+
+    
+    </head>
+<body data-theme = "" class="notransition">
+
+<script src="/js/theme.min.8961c317c5b88b953fe27525839672c9343f1058ab044696ca225656c8ba2ab0.js" integrity="sha256-iWHDF8W4i5U/4nUlg5ZyyTQ/EFirBEaWyiJWVsi6KrA="></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="https://jfolgado.com/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/">
+                        Home
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/about/">
+                        Bio
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Building a Serverless RAG Pipeline with Amazon Bedrock, S3 Vectors and Step Functions</h1>
+                
+                
+                <div class="post-meta">
+                    <time datetime="2026-02-26T10:00:00&#43;01:00" itemprop="datePublished"> Feb 26, 2026 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <h1 id="introduction">Introduction</h1>
+<p>In this post, I’ll walk through a side project I built to explore one of the most talked-about patterns in AI right now: <strong>RAG</strong> — Retrieval-Augmented Generation.</p>
+<p>The idea was simple:</p>
+<p>I have a collection of gym documents — pricing sheets, schedules, policies, and class descriptions — and I want people to ask natural-language questions about them and receive accurate, human-sounding answers.</p>
+<p>Not hallucinations.<br>
+Not vague summaries.<br>
+Answers grounded in the actual documents.</p>
+<p>The architecture was inspired by the excellent AWS <a href="https://aws.amazon.com/blogs/compute/orchestrating-large-scale-document-processing-with-aws-step-functions-and-amazon-bedrock-batch-inference/">blog post</a> <em>“Orchestrating large-scale document processing with AWS Step Functions and Amazon Bedrock batch inference”</em> by Brian Zambrano and Dan Ford. It’s a great reference if you&rsquo;re thinking about large-scale document workflows.
+You can find the blog post here</p>
+<p>I deliberately deviated in a few places:</p>
+<ul>
+<li>I skipped Batch Inference (it requires a quota increase and adds extra async coordination that wasn’t necessary at this scale).</li>
+<li>I avoided OpenSearch (running a vector cluster felt heavy and expensive for a side project).</li>
+<li>Instead, I used <strong>Amazon S3 Vectors</strong>, a newly launched S3 storage class designed specifically for vector data.</li>
+</ul>
+<p>Cheaper. Simpler. Fully serverless. And a great excuse to experiment with a brand-new AWS service.</p>
+<p>The result is a fully serverless RAG pipeline that:</p>
+<ul>
+<li>Ingests raw PDF documents</li>
+<li>Extracts text with Amazon Textract</li>
+<li>Enriches documents with AI-generated metadata using Amazon Bedrock (Nova Pro)</li>
+<li>Indexes everything into a knowledge base backed by S3 Vectors</li>
+<li>Exposes a conversational HTTP API with multi-turn memory</li>
+</ul>
+<p>All orchestrated with Step Functions, written in Go, and provisioned using Terraform.</p>
+<p>If you’re here specifically for the AI architecture, jump straight to <a href="#the-knowledge-base-and-vector-search">The Knowledge Base and Vector Search</a>.<br>
+If you want the full system design — ingestion, orchestration, metadata modeling, and retrieval — buckle up. 🚀</p>
+<ul>
+<li><a href="https://github.com/Flgado/ai-knowledge-base-pipeline">Source Code</a></li>
+</ul>
+<h1 id="background-what-we-need-to-know-first">Background: What We Need to Know First</h1>
+<p>Before jumping into the implementation, let’s quickly align on a few concepts. If these click, the rest of the architecture makes a lot more sense.</p>
+<hr>
+<h2 id="rag-why-not-just-fine-tune">RAG: Why Not Just Fine-Tune?</h2>
+<p>When people first think about making an AI answer questions about their own data, the instinct is usually:</p>
+<p><em>&ldquo;Why not just fine-tune the model on my documents?&rdquo;</em></p>
+<p>In practice, that’s rarely the right move for Q&amp;A systems.</p>
+<p>Fine-tuning is:</p>
+<ul>
+<li>Expensive (both in dollars and time)</li>
+<li>Operationally heavy</li>
+<li>Slow to adapt when data changes</li>
+</ul>
+<p>And most importantly — your data changes.</p>
+<p>If a gym updates its pricing, you don’t want to retrain a model.<br>
+You want to <strong>update a document</strong>.</p>
+<p>That’s exactly what Retrieval-Augmented Generation (RAG) enables.</p>
+<pre tabindex="0"><code>User question
+   ↓
+Search your documents for relevant chunks
+   ↓
+Inject those chunks into the LLM as context
+   ↓
+Generate an answer grounded in your data
+</code></pre><p>The model doesn’t <em>memorize</em> your knowledge.</p>
+<p>It reads it fresh on every request.</p>
+<p>That has powerful implications:</p>
+<ul>
+<li>Data updates are instant (re-ingest the document, done)</li>
+<li>No GPU bills for fine-tuning</li>
+<li>Answers can be traced back to source material</li>
+<li>Hallucinations are drastically reduced when properly grounded</li>
+</ul>
+<p>The trade-off?</p>
+<p>You now need a way to search documents <strong>semantically</strong>, not just by keyword.</p>
+<p>That’s where vectors come in.</p>
+<hr>
+<h2 id="vectors-and-embeddings-the-engine-behind-semantic-search">Vectors and Embeddings: The Engine Behind Semantic Search</h2>
+<figure class="center"><img src="/images/post_6/enbedding.png">
+</figure>
+
+<p>Semantic search means this:</p>
+<p>If a user asks:</p>
+<blockquote>
+<p>&ldquo;How much does it cost per month?&rdquo;</p>
+</blockquote>
+<p>They should retrieve content that says:</p>
+<blockquote>
+<p>&ldquo;Monthly membership fee&rdquo;</p>
+</blockquote>
+<p>Even if the word <em>“cost”</em> never appears.</p>
+<p>This works through <strong>embeddings</strong>.</p>
+<p>An embedding model converts text into a high-dimensional numeric representation — typically 1024 or 1536 dimensions. The key property:</p>
+<blockquote>
+<p>Semantically similar text produces numerically similar vectors.</p>
+</blockquote>
+<p>For example:</p>
+<pre tabindex="0"><code>&#34;monthly membership fee&#34;    → [0.12, -0.87, 0.34, ...]
+&#34;how much does it cost&#34;     → [0.11, -0.85, 0.36, ...]  ← very close
+&#34;pizza margherita recipe&#34;   → [-0.91, 0.42, -0.12, ...] ← very different
+</code></pre><p>At query time, the flow looks like this:</p>
+<ol>
+<li>Convert the user’s question into a vector</li>
+<li>Compare it to stored document vectors (typically via cosine similarity)</li>
+<li>Retrieve the closest matches</li>
+<li>Feed those chunks into the LLM as context</li>
+</ol>
+<p>That’s it.</p>
+<p>This embedding + similarity search loop is the core of any knowledge base. Everything else — orchestration, APIs, infrastructure — is supporting machinery.</p>
+<hr>
+<h2 id="amazon-s3-vectors-the-new-kid-">Amazon S3 Vectors: The New Kid 🆕</h2>
+<p>Traditionally, vector search meant running a dedicated database:</p>
+<ul>
+<li>Pinecone</li>
+<li>Weaviate</li>
+<li>pgvector</li>
+<li>OpenSearch</li>
+</ul>
+<p>Which usually implies:</p>
+<ul>
+<li>Managing infrastructure</li>
+<li>Paying for idle capacity</li>
+<li>Operating another distributed system</li>
+</ul>
+<p>Amazon introduced <strong>S3 Vectors</strong> as a new S3 storage class purpose-built for vector data.</p>
+<p>The idea is simple:</p>
+<p>Store embeddings directly in S3, query them using native vector search APIs.<br>
+No separate cluster. No managed search service to babysit.</p>
+<p>Under the hood, it uses a Vector Bucket and Vector Index abstraction, and Amazon Bedrock Knowledge Base can use it natively as a backing store.</p>
+<p>For a fully serverless architecture, this is a strong fit:</p>
+<ul>
+<li>No idle compute</li>
+<li>Pay per usage</li>
+<li>Scales with S3</li>
+<li>Integrated with Bedrock</li>
+</ul>
+<p>It’s still a relatively new service, but Terraform support has caught up nicely — no hacks, no duct tape, no “just click it in the console for now.” For a POC and a serverless-first design, it’s a compelling direction.</p>
+<hr>
+<h1 id="the-architecture">The Architecture</h1>
+<figure class="center"><img src="/images/post_6/pipeline.jpeg">
+</figure>
+
+<p>Two distinct flows drive the system:</p>
+<ul>
+<li><strong>Ingestion-time</strong> (async, batch-oriented, heavy lifting)</li>
+<li><strong>Query-time</strong> (synchronous, low-latency, user-facing)</li>
+</ul>
+<p>Everything is serverless.</p>
+<p>Nothing runs when it&rsquo;s not needed.<br>
+No idle clusters.<br>
+No background workers quietly burning money.</p>
+<p>Exactly how I like it.</p>
+<hr>
+<h1 id="the-ingestion-pipeline">The Ingestion Pipeline</h1>
+<p>This is where most of the real engineering happens.</p>
+<p>RAG demos often focus on the retrieval side.<br>
+But ingestion — async orchestration, metadata modeling, chunking — is where things either become robust or quietly fall apart.</p>
+<hr>
+<h2 id="step-1-textract-ocr">Step 1: Textract OCR</h2>
+<p>The raw input is PDFs.</p>
+<p>And PDFs are not text — they’re rendered pages. Before any AI can reason about them, we need to extract actual content.</p>
+<p>We use <strong>Amazon Textract</strong>, which operates asynchronously:</p>
+<ol>
+<li>Submit a document</li>
+<li>Textract processes it</li>
+<li>When finished, it publishes an SNS notification</li>
+</ol>
+<p>The Step Functions workflow starts a Textract job per document (in parallel using <code>DistributedMap</code>, up to 10 at once) and then waits for completion.</p>
+<p>This is where <code>WAIT_FOR_TASK_TOKEN</code> comes in.</p>
+<p>Instead of polling (the distributed systems equivalent of asking <em>“are we there yet?”</em> every five seconds), the workflow pauses cleanly until it receives a callback.</p>
+<p>Conceptually:</p>
+<pre tabindex="0"><code>StartTextractJob
+    ↓
+Store Task Token in DynamoDB  ← PAUSED (WAIT_FOR_TASK_TOKEN)
+    ↓
+Textract completes → SNS fires
+    ↓
+Callback Lambda retrieves token
+    ↓
+SendTaskSuccess(token)
+    ↓
+Workflow resumes exactly where it stopped
+</code></pre><p>No polling loop.<br>
+No wasted Lambda invocations.<br>
+No guessing when the job might finish.</p>
+<p>The raw output stored in S3 looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;gym_id&#34;</span>: <span style="color:#e6db74">&#34;folgado-gym&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;raw_text&#34;</span>: <span style="color:#e6db74">&#34;Folgado Gym - Austin, Texas\nMembership Plans\nMonthly: $159/month...&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>At this stage, we have text.</p>
+<p>But we don’t yet have structure.</p>
+<hr>
+<h2 id="step-2-document-enrichment-with-nova-pro-">Step 2: Document Enrichment with Nova Pro 🤖</h2>
+<p>Textract gives us a wall of flattened text:</p>
+<p>Headings, bullet points, tables, footers — all merged into a single stream.</p>
+<p>If we indexed this directly, the Knowledge Base would chunk it blindly.<br>
+You could easily end up with a chunk containing half a pricing table and half a yoga schedule.</p>
+<p>Technically valid. Practically useless.</p>
+<p>More importantly, Bedrock Knowledge Base supports <strong>metadata attributes</strong> for filtering at query time.</p>
+<p>Without metadata:</p>
+<ul>
+<li>You can’t filter by <code>gym_id</code></li>
+<li>You can’t filter by document type</li>
+<li>You can’t enforce clean multi-tenancy</li>
+<li>Everything becomes “kind of relevant”</li>
+</ul>
+<p>So before indexing, we enrich each document using Nova Pro via the Bedrock <code>Converse</code> API.</p>
+<p>We ask the model to extract structured metadata:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">promptTemplate</span> = <span style="color:#e6db74">`Analyze the following gym facility document and extract structured metadata.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Return ONLY valid JSON:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;document_type&#34;: &#34;&lt;facilities | pricing | class_schedule | trainers | policies | general_info&gt;&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;gym_name&#34;: &#34;&lt;name of the gym&gt;&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;location&#34;: &#34;&lt;city and state&gt;&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;key_topics&#34;: [&#34;&lt;topic1&gt;&#34;, &#34;&lt;topic2&gt;&#34;],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;summary&#34;: &#34;&lt;2-3 sentence summary&gt;&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;amenities&#34;: [&#34;&lt;amenity1&gt;&#34;, &#34;&lt;amenity2&gt;&#34;],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;searchable_keywords&#34;: [&#34;&lt;kw1&gt;&#34;, &#34;&lt;kw2&gt;&#34;, &#34;&lt;kw3&gt;&#34;]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Document text:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;gym_document&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">%s
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/gym_document&gt;`</span>
+</span></span></code></pre></div><p>The enrichment Lambda calls <code>bedrock.Converse</code> and parses the JSON response:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">out</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">bedrock</span>.<span style="color:#a6e22e">Converse</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">bedrockruntime</span>.<span style="color:#a6e22e">ConverseInput</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">ModelId</span>: <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">modelID</span>), <span style="color:#75715e">// eu.amazon.nova-pro-v1:0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">Messages</span>: []<span style="color:#a6e22e">brtypes</span>.<span style="color:#a6e22e">Message</span>{{
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Role</span>: <span style="color:#a6e22e">brtypes</span>.<span style="color:#a6e22e">ConversationRoleUser</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Content</span>: []<span style="color:#a6e22e">brtypes</span>.<span style="color:#a6e22e">ContentBlock</span>{
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">brtypes</span>.<span style="color:#a6e22e">ContentBlockMemberText</span>{<span style="color:#a6e22e">Value</span>: <span style="color:#a6e22e">prompt</span>},
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>    }},
+</span></span><span style="display:flex;"><span>})
+</span></span></code></pre></div><p>Each document gets a companion <code>.metadata.json</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;metadataAttributes&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;document_type&#34;</span>: <span style="color:#e6db74">&#34;pricing&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;location&#34;</span>: <span style="color:#e6db74">&#34;Austin, TX&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;gym_id&#34;</span>: <span style="color:#e6db74">&#34;folgado-gym&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;source_file&#34;</span>: <span style="color:#e6db74">&#34;docs/folgado-gym/membership-pricing.pdf&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>One critical detail:</p>
+<p><code>gym_id</code> is never trusted from the model.</p>
+<p>It is derived deterministically from the S3 path (<code>docs/{gym_id}/filename.pdf</code>).</p>
+<p>The model can hallucinate a gym name.<br>
+It cannot hallucinate a bucket path.</p>
+<p>This Lambda runs synchronously inside Step Functions — no task tokens needed. Step Functions simply waits for it to complete.</p>
+<blockquote>
+<p>Full disclosure: for this project, enrichment wasn’t strictly required.<br>
+The only metadata needed for multi-tenancy is <code>gym_id</code>, which is already derivable from the S3 key.</p>
+<p>I could have written a tiny <code>.metadata.json</code> and moved on.</p>
+<p>But I wanted to understand the full ingestion lifecycle properly: async OCR coordination, parallel processing with <code>DistributedMap</code>, metadata extraction, and how it propagates into vector indexing.</p>
+<p>Sometimes you over-engineer on purpose.<br>
+We call that “learning.” 😄</p>
+</blockquote>
+<hr>
+<h1 id="step-3-knowledge-base-ingestion">Step 3: Knowledge Base Ingestion</h1>
+<p>Once the <code>.metadata.json</code> files are in S3, we trigger a Bedrock Knowledge Base <strong>ingestion job</strong>.</p>
+<p>This is where documents stop being PDFs and start becoming vectors.</p>
+<p>In other words: this is where the magic becomes math.</p>
+<hr>
+<h2 id="how-bedrock-connects-metadata-to-vectors">How Bedrock Connects Metadata to Vectors</h2>
+<p>This part is not obvious from the docs — so let’s make it explicit.</p>
+<p>Bedrock Knowledge Base links a document to its metadata using a strict <strong>naming convention</strong>.</p>
+<p>For every source file, it looks for a companion file with the same name plus <code>.metadata.json</code>, in the same S3 prefix:</p>
+<pre tabindex="0"><code>docs/folgado-gym/membership-pricing.pdf
+docs/folgado-gym/membership-pricing.pdf.metadata.json
+</code></pre><p>That’s it.</p>
+<p>No config mapping.<br>
+No registry.<br>
+No hidden lookup table.</p>
+<p>If the companion file exists, Bedrock reads it.<br>
+If it doesn’t, the document is indexed with no metadata at all.</p>
+<p>Which is a polite way of saying: your filtering won’t work.</p>
+<hr>
+<h2 id="what-actually-happens-during-ingestion">What Actually Happens During Ingestion</h2>
+<figure class="center"><img src="/images/post_6/ingestion.png">
+</figure>
+
+<p>When ingestion runs, each document goes through the following pipeline:</p>
+<ol>
+<li>Bedrock discovers the document in S3</li>
+<li>It reads the companion <code>.metadata.json</code></li>
+<li>It splits the text into chunks (FIXED_SIZE, 200 tokens, 10% overlap)</li>
+<li>For each chunk:
+<ul>
+<li>Calls the Titan embedding model → 1536-dimensional vector</li>
+<li>Stamps the chunk with <strong>all metadata attributes</strong></li>
+</ul>
+</li>
+<li>Writes every <code>{ text, vector, metadata }</code> entry into the S3 Vectors index</li>
+</ol>
+<p>That “stamping” step is the critical detail.</p>
+<p>Every chunk derived from <code>membership-pricing.pdf</code> inherits:</p>
+<pre tabindex="0"><code>gym_id: &#34;folgado-gym&#34;
+document_type: &#34;pricing&#34;
+location: &#34;Austin, TX&#34;
+...
+</code></pre><p>So if that file produces 20 chunks, all 20 carry identical metadata.</p>
+<p>This is how multi-tenancy is enforced — at the storage layer.</p>
+<p>When a query arrives with <code>gym_id = folgado-gym</code>, chunks from other gyms are excluded <strong>before</strong> retrieval happens, no matter how semantically similar they are.</p>
+<p>That’s not a polite suggestion.<br>
+It’s enforced at the vector search layer.</p>
+<h2 id="incremental-ingestion-what-happens-when-documents-change">Incremental Ingestion: What Happens When Documents Change?</h2>
+<p>One important detail that isn’t obvious at first:</p>
+<p>Bedrock Knowledge Base defaults to <strong>incremental ingestion</strong>.</p>
+<p>It keeps track of every previously indexed document by storing the S3 object&rsquo;s <strong>ETag</strong> (a hash of the file content) internally.</p>
+<p>When a new ingestion job runs, Bedrock evaluates each object in the <code>docs/</code> prefix:</p>
+<ul>
+<li><strong>ETag unchanged</strong> → skip (already indexed)</li>
+<li><strong>ETag changed</strong> → delete old vectors, re-embed, and re-index</li>
+<li><strong>New file</strong> → embed and index</li>
+<li><strong>File deleted from S3</strong> → delete its vectors from the index</li>
+</ul>
+<p>So if you update one PDF and trigger ingestion, only that document gets reprocessed.</p>
+<p>The other 20 documents?</p>
+<p>Untouched.</p>
+<p>No wasted embeddings.<br>
+No full re-index.<br>
+No unnecessary compute.</p>
+<hr>
+<h3 id="a-small-architectural-nuance">A Small Architectural Nuance</h3>
+<p>In my implementation, the upstream pipeline (Textract + enrichment) still runs across all documents when triggered.</p>
+<p>That was intentional. I wanted to reproduce and understand the full orchestration pattern from the AWS reference architecture.</p>
+<p>In a production system, you would likely trigger processing only for changed objects. That would be straightforward to adapt</p>
+<p>The Knowledge Base itself is incremental by design.</p>
+<h2 id="my-surrounding-pipeline-is-currently-educationally-enthusiastic-">My surrounding pipeline is currently… educationally enthusiastic. 😄</h2>
+<h2 id="why-chunk-size-matters-more-than-you-think">Why Chunk Size Matters More Than You Think</h2>
+<p>By default, Bedrock uses 500-token chunks.</p>
+<p>In theory, larger chunks mean:</p>
+<ul>
+<li>Fewer embeddings</li>
+<li>Lower storage</li>
+<li>Fewer retrieval calls</li>
+</ul>
+<p>In practice, two things happened:</p>
+<ol>
+<li>Bedrock enforces a <strong>2MB limit per document</strong> when using S3 Vectors.</li>
+<li>Large chunks reduced retrieval precision.</li>
+</ol>
+<p>Dropping to <strong>200 tokens with 10% overlap</strong> solved both:</p>
+<ul>
+<li>Stayed well under the 2MB limit</li>
+<li>Produced more granular retrieval</li>
+<li>Improved answer synthesis for cross-document questions</li>
+</ul>
+<p>Chunk tuning is part science, part “ingest, test, adjust, repeat.”</p>
+<p>There is no universal best number.<br>
+Anyone who tells you otherwise is guessing confidently.</p>
+<hr>
+<h2 id="what-s3-vectors-is-actually-storing">What S3 Vectors Is Actually Storing</h2>
+<p>S3 Vectors stores:</p>
+<ul>
+<li>The raw chunk text</li>
+<li>The embedding vector (1536 floating-point dimensions)</li>
+<li>The associated metadata attributes</li>
+</ul>
+<p>Conceptually, each entry looks like:</p>
+<pre tabindex="0"><code>{
+  &#34;text&#34;: &#34;...&#34;,
+  &#34;vector&#34;: [0.12, -0.43, 0.87, ...],
+  &#34;metadata&#34;: {
+      &#34;gym_id&#34;: &#34;folgado-gym&#34;,
+      &#34;document_type&#34;: &#34;pricing&#34;,
+      ...
+  }
+}
+</code></pre><p>Under the hood, S3 Vectors manages:</p>
+<ul>
+<li>A <strong>Vector Bucket</strong></li>
+<li>A <strong>Vector Index</strong></li>
+<li>Approximate nearest neighbor search (ANN) for similarity lookup</li>
+</ul>
+<p>You don’t manage shards.<br>
+You don’t tune index types.<br>
+You don’t provision capacity.</p>
+<p>For a serverless architecture, that’s a big deal.</p>
+<p>No cluster sizing debates.<br>
+No “why is my vector node at 90% heap?” moments.</p>
+<p>Just storage and search.</p>
+<hr>
+<h2 id="retrieveandgenerate-one-api-call-full-rag">RetrieveAndGenerate: One API Call, Full RAG</h2>
+<p>Bedrock’s <code>RetrieveAndGenerate</code> API encapsulates the entire RAG loop:</p>
+<ol>
+<li>Embed the user question</li>
+<li>Perform vector search (with metadata filter)</li>
+<li>Retrieve top N chunks</li>
+<li>Inject chunks into the prompt</li>
+<li>Generate the final answer</li>
+<li>Return the response + session ID</li>
+</ol>
+<p>From the Lambda’s perspective, it’s one SDK call:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">out</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">bedrock</span>.<span style="color:#a6e22e">RetrieveAndGenerate</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">bedrockagentruntime</span>.<span style="color:#a6e22e">RetrieveAndGenerateInput</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Input</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">RetrieveAndGenerateInput</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Text</span>: <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">Question</span>),
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">RetrieveAndGenerateConfiguration</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">RetrieveAndGenerateConfiguration</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Type</span>: <span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">RetrieveAndGenerateTypeKnowledgeBase</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">KnowledgeBaseConfiguration</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">KnowledgeBaseRetrieveAndGenerateConfiguration</span>{
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">KnowledgeBaseId</span>: <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">knowledgeBaseID</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">ModelArn</span>:        <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">modelARN</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">GenerationConfiguration</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">GenerationConfiguration</span>{
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">PromptTemplate</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">PromptTemplate</span>{
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">TextPromptTemplate</span>: <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">fitBotPrompt</span>),
+</span></span><span style="display:flex;"><span>                },
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">RetrievalConfiguration</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">KnowledgeBaseRetrievalConfiguration</span>{
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">VectorSearchConfiguration</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">KnowledgeBaseVectorSearchConfiguration</span>{
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">NumberOfResults</span>: <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">Int32</span>(<span style="color:#ae81ff">14</span>),
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">Filter</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">RetrievalFilterMemberEquals</span>{
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">Value</span>: <span style="color:#a6e22e">types</span>.<span style="color:#a6e22e">FilterAttribute</span>{
+</span></span><span style="display:flex;"><span>                            <span style="color:#a6e22e">Key</span>:   <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;gym_id&#34;</span>),
+</span></span><span style="display:flex;"><span>                            <span style="color:#a6e22e">Value</span>: <span style="color:#a6e22e">document</span>.<span style="color:#a6e22e">NewLazyDocument</span>(<span style="color:#a6e22e">gymID</span>),
+</span></span><span style="display:flex;"><span>                        },
+</span></span><span style="display:flex;"><span>                    },
+</span></span><span style="display:flex;"><span>                },
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>})
+</span></span></code></pre></div><p>One call.</p>
+<p>Embedding, retrieval, filtering, generation — all handled inside Bedrock.</p>
+<hr>
+<h2 id="the-most-underrated-knob-numberofresults">The Most Underrated Knob: <code>NumberOfResults</code></h2>
+<p>We use <strong>14</strong> chunks.</p>
+<p>Why?</p>
+<ul>
+<li>Too low (3–5): incomplete answers for multi-document questions.</li>
+<li>Too high (50+): higher cost, more noise, diluted context.</li>
+<li>14: enough breadth without overwhelming the model.</li>
+</ul>
+<p>The “right” number depends on:</p>
+<ul>
+<li>Chunk size</li>
+<li>Document density</li>
+<li>How often answers require synthesis across multiple sources</li>
+</ul>
+<p>Tuning this value changes answer quality more than most people expect.</p>
+<p>It’s one of the highest-leverage parameters in the entire pipeline.</p>
+<hr>
+<h2 id="fitbot-why-the-persona-matters-more-than-youd-think-">FitBot: Why the Persona Matters More Than You’d Think 🤖💪</h2>
+<p>Bedrock Knowledge Base lets you inject a custom system prompt.</p>
+<p>The template must include a <code>$search_results$</code> placeholder — Bedrock replaces it at query time with the retrieved chunks before sending everything to the model.</p>
+<p>Here’s the one I used:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fitBotPrompt</span> = <span style="color:#e6db74">`You are FitBot, an enthusiastic and friendly gym assistant
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">who genuinely loves helping people reach their fitness goals. You speak in a warm,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">motivating tone — like a great personal trainer who also happens to know everything
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">about the gym. Keep answers conversational, energetic, and encouraging.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Never sound like a brochure.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Use only the information below to answer. If you do not know, say so honestly.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">$search_results$`</span>
+</span></span></code></pre></div><p>There’s one line here that matters more than anything else:</p>
+<blockquote>
+<p><strong>“Use only the information below to answer. If you do not know, say so honestly.”</strong></p>
+</blockquote>
+<p>Without that instruction, the model will happily:</p>
+<ul>
+<li>Invent gym features</li>
+<li>Make up pricing logic</li>
+<li>Confidently describe an Olympic pool that absolutely does not exist</li>
+</ul>
+<p>With it, hallucinations drop dramatically.</p>
+<p>That one sentence turns the model from “creative assistant” into “disciplined knowledge worker.”</p>
+<hr>
+<h3 id="persona-is-not-just-cosmetic">Persona Is Not Just Cosmetic</h3>
+<p>It’s easy to think persona is fluff.</p>
+<p>It’s not.</p>
+<p>Compare:</p>
+<blockquote>
+<p><strong>Without persona</strong><br>
+“The monthly unlimited membership is priced at $159.00 per month.”</p>
+</blockquote>
+<blockquote>
+<p><strong>With FitBot</strong><br>
+“Hey! So the monthly unlimited is $159/month — but if you&rsquo;re serious about committing, the annual at $1,599 saves you $309. That&rsquo;s basically two months free! 💪”</p>
+</blockquote>
+<p>Same data.</p>
+<p>Completely different experience.</p>
+<p>The second response:</p>
+<ul>
+<li>Frames value</li>
+<li>Highlights savings</li>
+<li>Encourages action</li>
+<li>Feels human</li>
+</ul>
+<p>Even more interesting: the “two months free” framing wasn’t in the document.<br>
+The model reasoned over the numbers and reframed them.</p>
+<p>That’s the sweet spot of RAG:
+Grounded facts + model reasoning.</p>
+<hr>
+<h3 id="prompt--model-size-in-this-system">Prompt &gt; Model Size (In This System)</h3>
+<p>During this project, I changed system prompts more often than I changed models.</p>
+<p>The prompt had a bigger impact on:</p>
+<ul>
+<li>Hallucination rate</li>
+<li>Tone consistency</li>
+<li>Answer structure</li>
+<li>User experience</li>
+</ul>
+<p>Switching model sizes improved quality incrementally.</p>
+<p>Improving instructions improved quality dramatically.</p>
+<p>Before upgrading models, fix your prompt.</p>
+<hr>
+<h1 id="the-api-multi-turn-conversation-">The API: Multi-Turn Conversation 🗣️</h1>
+<p>The <code>ask-gym</code> Lambda sits behind API Gateway and exposes a simple endpoint:</p>
+<pre tabindex="0"><code>POST /ask
+
+Headers:
+  X-Gym-Id: folgado-gym
+  X-Session-Id: &lt;uuid&gt; (optional)
+
+Body:
+  { &#34;question&#34;: &#34;What are the prices?&#34; }
+
+Response:
+  { &#34;answer&#34;: &#34;...&#34;, &#34;session_id&#34;: &#34;0e0818d8-...&#34; }
+</code></pre><p>Two headers matter:</p>
+<ul>
+<li><code>X-Gym-Id</code> → determines which tenant to query</li>
+<li><code>X-Session-Id</code> → enables conversation memory</li>
+</ul>
+<hr>
+<h2 id="multi-turn-memory-zero-storage-completely-free">Multi-Turn Memory: Zero Storage, Completely Free</h2>
+<p>The <code>SessionId</code> field in <code>RetrieveAndGenerate</code> enables multi-turn conversation entirely server-side.</p>
+<p>Bedrock stores the conversation history.<br>
+We store nothing.</p>
+<p>No Redis.<br>
+No DynamoDB session table.<br>
+No “chat memory service.”</p>
+<p>The flow is simple:</p>
+<ol>
+<li>First request → receive <code>session_id</code></li>
+<li>Client includes <code>session_id</code> in the next request</li>
+<li>Bedrock reconstructs conversation context automatically</li>
+</ol>
+<p>In Go:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">sessionID</span> <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">input</span>.<span style="color:#a6e22e">SessionId</span> = <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">String</span>(<span style="color:#a6e22e">sessionID</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">out</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">bedrock</span>.<span style="color:#a6e22e">RetrieveAndGenerate</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">input</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Always echo the session ID back — the client needs it for the next turn
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">outSessionID</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">aws</span>.<span style="color:#a6e22e">ToString</span>(<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">SessionId</span>)
+</span></span></code></pre></div><p>That’s it.</p>
+<p>Multi-turn conversation without building any memory layer yourself.</p>
+<p>I’m not saying it feels like cheating.</p>
+<p>But it definitely feels efficient.</p>
+<hr>
+<h2 id="real-multi-turn-example">Real Multi-Turn Example</h2>
+<p><strong>Turn 1 — no session:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;answer&#34;</span>: <span style="color:#e6db74">&#34;Hey! Here are the membership prices for Folgado Gym:\n• Monthly Unlimited: $159/month\n• Annual Unlimited: $1,599/year (saves you $309!)&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;session_id&#34;</span>: <span style="color:#e6db74">&#34;0e0818d8-6825-43e1-99f8-619280ddffa7&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Turn 2 — same session:</strong></p>
+<p>Question:<br>
+<em>&ldquo;Which option did you just mention is cheaper in the long run?&rdquo;</em></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;answer&#34;</span>: <span style="color:#e6db74">&#34;The annual membership is definitely the more cost-effective option! You pay $1,599 for the year vs $1,908 paying monthly — that&#39;s a saving of $309. Ready to commit to a full year of awesome workouts? 💪&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;session_id&#34;</span>: <span style="color:#e6db74">&#34;0e0818d8-6825-43e1-99f8-619280ddffa7&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Notice what’s missing:</p>
+<ul>
+<li>No pricing context repeated</li>
+<li>No summary injected by the client</li>
+<li>No manual conversation stitching</li>
+</ul>
+<p>The model understood “the option you just mentioned” because Bedrock restored the prior turn automatically.</p>
+<p>No session store.<br>
+No complexity.<br>
+Just stateful retrieval.</p>
+<hr>
+<h1 id="fitbot-in-action-real-queries-">FitBot in Action: Real Queries 🏋️</h1>
+<p>These responses are from the live API. No edits. No cherry-picking.</p>
+<hr>
+<h2 id="simple-what-are-the-membership-options">Simple: What are the membership options?</h2>
+<p><strong>Question:</strong><br>
+<em>&ldquo;What membership options are available and what do they cost?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<p>Hey there! I&rsquo;m super excited to tell you about the membership options we have at Folgado Gym. Here&rsquo;s a quick rundown:</p>
+<ol>
+<li><strong>Monthly Unlimited Membership</strong>: $159/month — flexibility, no long-term commitment, access to all facilities and classes.</li>
+<li><strong>Annual Unlimited Membership</strong>: $1,599/year — saves you $309 compared to monthly. 12-month commitment, auto-renews annually.</li>
+<li><strong>Couples Membership</strong>: $269/month for two people at the same address — saves $49 vs two separate monthly memberships.</li>
+<li><strong>Punch Pass (10 Classes)</strong>: $199, valid for 60 days. Great for flexible schedules or trying us out.</li>
+<li><strong>Day Pass</strong>: $25 per visit, no commitment, walk in based on availability.</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="financial-calculation-early-cancellation-cost">Financial Calculation: Early Cancellation Cost</h2>
+<p><strong>Question:</strong><br>
+<em>&ldquo;If I sign up for the annual membership today and need to cancel after 8 months due to moving away, what exactly will I have paid in total and what fees apply?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<p>So if you sign up for the annual membership and cancel after 8 months, here&rsquo;s what you&rsquo;ll need to consider:</p>
+<ol>
+<li><strong>Membership Cost</strong>: You&rsquo;ll have paid for 8 months of your annual membership. The annual membership costs $1,599, so for 8 months, you&rsquo;ll have paid:
+$\frac{8}{12} \times 1599 = $1,066$</li>
+<li><strong>Cancellation Fee</strong>: Since you&rsquo;re canceling before the full year is up, you&rsquo;ll need to pay a <strong>$50 early termination fee</strong>.</li>
+</ol>
+<p>So, in total, you&rsquo;ll have paid: <strong>$1,066 + $50 = $1,116</strong></p>
+<p>And remember, you&rsquo;ll need to submit your cancellation request in writing at least 30 days before your next billing date to avoid any additional charges.</p>
+</blockquote>
+<p>This is where RAG shines.</p>
+<p>The model:</p>
+<ul>
+<li>Retrieved pricing</li>
+<li>Retrieved the early termination clause</li>
+<li>Combined them</li>
+<li>Performed the math</li>
+<li>Produced a grounded, reasoned answer</li>
+</ul>
+<p>Not just retrieval. Not just generation.</p>
+<p>Retrieval + reasoning.</p>
+<hr>
+<h2 id="cross-document-trainers--pt-sessions">Cross-Document: Trainers + PT Sessions</h2>
+<p><strong>Question:</strong><br>
+<em>&ldquo;Who are the personal trainers, what are their specialties, and do any memberships include PT sessions?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<p>Our gym is lucky to have a fantastic team of personal trainers, each with their own specialties:</p>
+<ul>
+<li><strong>Alicia Ramirez</strong> — low-impact strength training and functional fitness</li>
+<li><strong>Emma Thompson</strong> — yin yoga, breathwork, and meditation</li>
+<li><strong>Jake Morrison</strong> — HIIT and high-intensity classes (Friday Fight Club!)</li>
+<li><strong>Marcus Rodriguez</strong> — strength and conditioning, Olympic lifting, CrossFit</li>
+<li><strong>Carlos Menendez</strong> — HIIT, kettlebell power, rowing intervals</li>
+<li><strong>Sarah Chen</strong> — strength and conditioning to stretch and recovery</li>
+</ul>
+<p>About memberships and PT sessions: the <strong>Monthly Unlimited</strong> doesn&rsquo;t include PT but gives you a <strong>10% discount</strong> on separately booked sessions. The <strong>Student/Military Membership</strong> includes <strong>2 complimentary PT sessions per year</strong> plus a 20% discount on additional ones.</p>
+</blockquote>
+<p>This answer spans multiple documents — trainers, pricing, membership policies.</p>
+<p>The Knowledge Base retrieved chunks from all of them.<br>
+FitBot synthesized them into a single coherent response.</p>
+<p>Which is exactly what we built the system to do.</p>
+<h2 id="multi-turn-pregnancy-freeze--cancellation-follow-up">Multi-Turn: Pregnancy Freeze → Cancellation Follow-Up</h2>
+<p>This example shows why session memory matters.</p>
+<p><strong>Turn 1</strong></p>
+<p><em>&ldquo;I have an annual membership and just found out I am pregnant. I want to keep my membership but pause it for 4 months. What are my options, what will it cost, and what happens to my renewal date?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<p>Congratulations on your pregnancy! 🎉 You&rsquo;re in luck — Folgado Gym has a special freeze option for expecting members.</p>
+<ul>
+<li><strong>Options</strong>: You can freeze your annual membership for the duration of your pregnancy and an additional 3 months postpartum — at no extra cost.</li>
+<li><strong>Cost</strong>: Completely free.</li>
+<li><strong>Renewal Date</strong>: Extended by the freeze duration. If your annual membership renews in January 2026 and you freeze for 4 months, your new renewal date will be May 2026.</li>
+<li><strong>How to Request</strong>: Email <a href="mailto:memberships@folgadogym.com">memberships@folgadogym.com</a> with a doctor&rsquo;s note within 14 days. Processing: 3–5 business days.</li>
+</ul>
+</blockquote>
+<p>Now the follow-up.</p>
+<p><strong>Turn 2 (same session, no context repeated)</strong></p>
+<p><em>&ldquo;And if after coming back I decide it is not for me and want to cancel — would the early termination fee still apply given the freeze extended my year?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<p>Great question! The early termination fee <strong>will still apply</strong> if you cancel within the first 12 months of your membership anniversary.</p>
+<p>When you freeze your membership, your renewal date is extended by the freeze duration — but this doesn&rsquo;t change the early termination fee policy. If you freeze for 3 months and your anniversary is in 10 months, you&rsquo;ll still be within the first 12 months when you return. The $50 fee would apply if you cancel at that point.</p>
+</blockquote>
+<p>Notice what didn’t happen:</p>
+<ul>
+<li>No annual membership context repeated</li>
+<li>No pregnancy explanation re-sent</li>
+<li>No freeze policy restated by the client</li>
+</ul>
+<p>The model understood that this was a continuation of the same scenario.</p>
+<p>That’s not magic.</p>
+<p>That’s session memory — handled entirely by Bedrock.</p>
+<p>And we store nothing ourselves.</p>
+<hr>
+<h2 id="grounding-test-some-things-we-know-some-we-dont">Grounding Test: Some Things We Know, Some We Don’t</h2>
+<p>This is where grounding really proves itself.</p>
+<p><strong>Question:</strong></p>
+<p><em>&ldquo;Does the gym have a swimming pool, a sauna, and free parking? And what are the gym opening hours on public holidays?&rdquo;</em></p>
+<p><strong>FitBot:</strong></p>
+<blockquote>
+<ul>
+<li><strong>Swimming Pool</strong>: I don&rsquo;t see any mention of a swimming pool in the information provided. So it looks like we don&rsquo;t have one.</li>
+<li><strong>Sauna</strong>: Yes! Available during all staffed hours — there&rsquo;s even a Yin Yoga &amp; Sauna session on Thursdays at 8:00 PM.</li>
+<li><strong>Free Parking</strong>: Absolutely! 45 dedicated spots, covered bike parking for 20 bikes, 3 ADA-compliant spaces near the entrance, plus street parking.</li>
+<li><strong>Public Holiday Hours</strong>: Open 7:00 AM – 5:00 PM on public holidays.</li>
+</ul>
+</blockquote>
+<p>Three answers were present in the documents.</p>
+<p>One was not.</p>
+<p>Instead of confidently inventing an Olympic training facility (which LLMs are very capable of doing), the model said:</p>
+<blockquote>
+<p>“I don&rsquo;t see any mention…”</p>
+</blockquote>
+<p>That sentence is doing a lot of work.</p>
+<p>It signals:</p>
+<ul>
+<li>Constrained reasoning</li>
+<li>Source grounding</li>
+<li>Instruction adherence</li>
+</ul>
+<p>This is what happens when prompt discipline and retrieval filtering work together.</p>
+<hr>
+<h1 id="what-i-learned">What I Learned</h1>
+<p>This project started as “let’s build a RAG demo.”</p>
+<p>It ended up being a systems design exercise.</p>
+<p>Here are the real takeaways.</p>
+<hr>
+<h3 id="1-s3-vectors-is-a-big-architectural-shift">1. S3 Vectors Is a Big Architectural Shift</h3>
+<p>Vector search without managing a separate database changes the operational story.</p>
+<p>No cluster sizing.
+No capacity planning.
+No idle infrastructure.</p>
+<p>Just storage + similarity search.</p>
+<p>For serverless-first architectures, that’s significant.</p>
+<p>If AWS continues investing here, this becomes the default path for many RAG systems.</p>
+<hr>
+<h3 id="2-wait_for_task_token-is-criminally-underrated">2. WAIT_FOR_TASK_TOKEN Is Criminally Underrated</h3>
+<p>Most people reach for polling.</p>
+<p>Task tokens let you:</p>
+<ul>
+<li>Pause indefinitely</li>
+<li>Pay nothing while waiting</li>
+<li>Resume instantly on callback</li>
+</ul>
+<p>It’s cleaner, cheaper, and more deterministic.</p>
+<p>Once you internalize this pattern, you start seeing polling loops everywhere — and wanting to delete them.</p>
+<hr>
+<h3 id="3-prompt-engineering--model-size-for-grounded-qa">3. Prompt Engineering &gt; Model Size (For Grounded Q&amp;A)</h3>
+<p>Switching models changed quality incrementally.</p>
+<p>Changing instructions changed behavior dramatically.</p>
+<p>The combination of:</p>
+<ul>
+<li>Clear grounding constraint</li>
+<li>Explicit “say so honestly” instruction</li>
+<li>Defined persona</li>
+</ul>
+<p>Reduced hallucinations more than upgrading the model ever did.</p>
+<p>Before scaling models, refine constraints.</p>
+<hr>
+<h3 id="4-metadata-filtering-is-not-optional-in-multi-tenant-systems">4. Metadata Filtering Is Not Optional in Multi-Tenant Systems</h3>
+<p>Without the <code>gym_id</code> filter, semantically similar chunks from different gyms could leak into responses.</p>
+<p>And that’s not just incorrect — it’s a data boundary problem.</p>
+<p>Filtering at the vector search layer enforces isolation before retrieval even happens.</p>
+<p>One Knowledge Base. Many tenants. Clean separation.</p>
+<hr>
+<h3 id="5-separate-ingestion-thinking-from-retrieval-thinking">5. Separate Ingestion Thinking From Retrieval Thinking</h3>
+<p>Ingestion can be:</p>
+<ul>
+<li>Heavy</li>
+<li>Async</li>
+<li>Parallel</li>
+<li>Slower</li>
+</ul>
+<p>Retrieval must be:</p>
+<ul>
+<li>Fast</li>
+<li>Deterministic</li>
+<li>Cost-aware</li>
+</ul>
+<p>Blurring those concerns leads to fragile systems.</p>
+<p>Keeping them distinct keeps the architecture clean.</p>
+<hr>
+<h3 id="6-rag-is-not-just-add-vectors">6. RAG Is Not “Just Add Vectors”</h3>
+<p>You need to think about:</p>
+<ul>
+<li>Chunk size</li>
+<li>Metadata modeling</li>
+<li>Retrieval depth</li>
+<li>Prompt constraints</li>
+<li>Async orchestration</li>
+<li>Failure modes</li>
+</ul>
+<p>The LLM is the visible part.</p>
+<p>The real engineering is everything around it.</p>
+<hr>
+<h1 id="conclusion">Conclusion</h1>
+<p>Building this project was the fastest way I know to truly understand RAG — not just the theory, but the operational reality.</p>
+<p>PDF → OCR → Enrichment → Vector Indexing → Conversational API.</p>
+<p>Fully serverless.
+Event-driven.
+Multi-tenant.
+Grounded.
+No idle compute.</p>
+<p>And, importantly, no imaginary swimming pools.</p>
+<p>If you want to explore the code, it’s all on GitHub — Terraform modules and Go Lambdas included.</p>
+<p>In the next post, I plan to explore adding an MCP (Model Context Protocol) server on top of this — turning the HTTP API into a tool that AI agents can discover and use directly.</p>
+<p>Because once your knowledge base is cleanly architected, exposing it to other models is the natural next step.</p>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="https://github.com/Flgado/ai-knowledge-base-pipeline">Source Code</a></li>
+<li><a href="https://aws.amazon.com/blogs/aws/introducing-amazon-s3-vectors-first-cloud-storage-with-native-vector-support-at-scale/">Introducing Amazon S3 Vectors</a></li>
+<li><a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">Step Functions</a></li>
+<li><a href="https://aws.amazon.com/blogs/machine-learning/getting-started-with-amazon-titan-text-embeddings/">Amazon Titan Text Embeddings</a></li>
+<li><a href="https://builder.aws.com/content/2eoCtgociSBhGfirRM0Tk0PSgxH/mapping-embeddings-from-meaning-to-vectors-and-back">Mapping embeddings: from meaning to vectors and back</a></li>
+</ul>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://github.com/Flgado" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/JoaoFolgado9/" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://www.instagram.com/joaofolgadoo/profilecard/?igsh=NndhY2V3OHZrZ3Ri" target="_blank" rel="noopener noreferrer me"
+    title="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
+</svg>
+</a>
+<a href="https://www.linkedin.com/in/jo%C3%A3o-folgado-393717255/" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2026 João Folgado.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script src="https://jfolgado.com/js/main.min.35f435a5d8eac613c52daa28d8af544a4512337d3e95236e4a4978417b8dcb2f.js" integrity="sha256-NfQ1pdjqxhPFLaoo2K9USkUSM30&#43;lSNuSkl4QXuNyy8="></script>
+
+    
+
+</body>
+</html>
