@@ -216,7 +216,7 @@ You can find the blog post here</p>
 <li>Exposes a conversational HTTP API with multi-turn memory</li>
 </ul>
 <p>All orchestrated with Step Functions, written in Go, and provisioned using Terraform.</p>
-<p>If you’re here specifically for the AI architecture, jump straight to <a href="#the-knowledge-base-and-vector-search">The Knowledge Base and Vector Search</a>.<br>
+<p>If you’re here specifically for the AI architecture, jump straight to <a href="#step-3-knowledge-base-ingestion">The Knowledge Base and Vector Search</a>.<br>
 If you want the full system design — ingestion, orchestration, metadata modeling, and retrieval — buckle up. 🚀</p>
 <ul>
 <li><a href="https://github.com/Flgado/ai-knowledge-base-pipeline">Source Code</a></li>
@@ -509,7 +509,7 @@ No unnecessary compute.</p>
 <h3 id="a-small-architectural-nuance">A Small Architectural Nuance</h3>
 <p>In my implementation, the upstream pipeline (Textract + enrichment) still runs across all documents when triggered.</p>
 <p>That was intentional. I wanted to reproduce and understand the full orchestration pattern from the AWS reference architecture.</p>
-<p>In a production system, you would likely trigger processing only for changed objects. That would be straightforward to adapt</p>
+<p>In a production system, you would likely trigger processing only for changed objects. That would be straightforward to adapt.</p>
 <p>The Knowledge Base itself is incremental by design.</p>
 <h2 id="my-surrounding-pipeline-is-currently-educationally-enthusiastic-">My surrounding pipeline is currently… educationally enthusiastic. 😄</h2>
 <h2 id="why-chunk-size-matters-more-than-you-think">Why Chunk Size Matters More Than You Think</h2>

@@ -38,7 +38,7 @@ The result is a fully serverless RAG pipeline that:
 
 All orchestrated with Step Functions, written in Go, and provisioned using Terraform.
 
-If you’re here specifically for the AI architecture, jump straight to [The Knowledge Base and Vector Search](#the-knowledge-base-and-vector-search).  
+If you’re here specifically for the AI architecture, jump straight to [The Knowledge Base and Vector Search](#step-3-knowledge-base-ingestion).  
 If you want the full system design — ingestion, orchestration, metadata modeling, and retrieval — buckle up. 🚀
 
 - [Source Code](https://github.com/Flgado/ai-knowledge-base-pipeline)
@@ -456,7 +456,7 @@ In my implementation, the upstream pipeline (Textract + enrichment) still runs a
 
 That was intentional. I wanted to reproduce and understand the full orchestration pattern from the AWS reference architecture.
 
-In a production system, you would likely trigger processing only for changed objects. That would be straightforward to adapt
+In a production system, you would likely trigger processing only for changed objects. That would be straightforward to adapt.
 
 The Knowledge Base itself is incremental by design.
 
